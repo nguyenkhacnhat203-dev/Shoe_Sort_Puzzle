@@ -41,3 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Shoe Box
+    uniqueID: 3262287283
+    locked: 0
+  - name: Shoe
+    uniqueID: 1909419599
+    locked: 0
