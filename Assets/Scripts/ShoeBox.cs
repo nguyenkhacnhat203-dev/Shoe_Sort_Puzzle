@@ -1,82 +1,70 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ShoeBox : MonoBehaviour
 {
-    [SerializeField] private ShoeSlot[] slots;
-    [SerializeField] private ShoeShelf shoeShelf;
+    [SerializeField] private Transform _slotContainer;
+    [SerializeField] private Transform _shelfContainer;
 
-    void Start()
+    private List<ShoeSlot> _totalSlots;
+    private List<ShoeShelf> _totalShelf;
+
+    private void Awake()
     {
-        slots = GetComponentsInChildren<ShoeSlot>();
-        foreach (var slot in slots)
+        _totalSlots = Utils.GetComponentChildren<ShoeSlot>(_slotContainer);
+        _totalShelf = Utils.GetComponentChildren<ShoeShelf>(_shelfContainer);
+    }
+
+    public void OnInitBox(int totalShelf, List<Sprite> listShoe)
+    {
+        int shoeCount = Random.Range(1,_totalSlots.Count + 1);
+        List<Sprite> list = listShoe;
+        List<Sprite> listSlot = Utils.TakeAndRemoveRandom<Sprite>(list, shoeCount);
+        Debug.Log("List slots: "+listSlot.Count);
+        for (int i = 0; i < listSlot.Count; i++)
         {
-            slot.OnItemDropped += CheckMatch;
-            slot.OnItemRemoved += CheckSlotEmpty;
+            ShoeSlot slot = this.RandomSlot();
+            slot.OnSetSlot(listSlot[i]);
+        }
+
+        List<List<Sprite>> remainShoe = new List<List<Sprite>>();
+
+        for (int i = 0; i < totalShelf - 1; i++)
+        {
+            remainShoe.Add(new List<Sprite>());
+            int n = Random.Range(0, listShoe.Count);
+            remainShoe[i].Add(listShoe[n]);
+            listShoe.RemoveAt(n);
+        }
+
+        while (listShoe.Count > 0)
+        {
+            int rans = Random.Range(0, remainShoe.Count);
+            if (remainShoe[rans].Count < 4)
+            {
+                int n = Random.Range(0, listShoe.Count);
+                remainShoe[rans].Add(listShoe[n]);
+                listShoe.RemoveAt(n);
+            }
+        }
+        for (int i = 0; i < _totalShelf.Count; i++)
+        {
+            bool active = i < remainShoe.Count;
+            _totalShelf[i].gameObject.SetActive(active);
+
+            if (active)
+            {
+                _totalShelf[i].OnSetShoe(remainShoe[i]);
+            }
         }
     }
 
-    private void CheckMatch()
+    private ShoeSlot RandomSlot()
     {
-        StartCoroutine(CheckMatchRoutine());
-    }
-
-    private void CheckSlotEmpty()
-    {
-        StartCoroutine(CheckSlotEmptyRoutine());
-    }
-
-    private IEnumerator CheckSlotEmptyRoutine()
-    {
-        yield return new WaitForEndOfFrame();
-        foreach (var slot in slots)
-        {
-            if (slot.TrackedShoe != null)
-            {
-                Debug.Log("At least one slot is not empty, cannot move shoes back to shelf.");
-                yield break;
-            }
-        }
-        StartCoroutine(shoeShelf.MoveShoeToSlot(slots));
-    }
-
-    private IEnumerator CheckMatchRoutine()
-    {
-        yield return new WaitForEndOfFrame();
-
-        if (slots == null || slots.Length == 0) yield break;
-
-        foreach (var slot in slots)
-        {
-            if (slot.transform.childCount == 0)
-            {
-                yield break;
-            }
-        }
-
-        int firstShoeId = slots[0].transform.GetComponentInChildren<ShoeView>().ShoeData.Id;
-        Debug.Log("First Shoe ID: " + firstShoeId);
-        bool isMatch = true;
-
-        foreach (var slot in slots)
-        {
-            ShoeView shoe = slot.transform.GetComponentInChildren<ShoeView>();
-            if (shoe == null || shoe.ShoeData.Id != firstShoeId)
-            {
-                isMatch = false;
-                yield break;
-            }
-        }
-
-        if (isMatch)
-        {
-            foreach (var slot in slots)
-            {
-                Destroy(slot.transform.GetChild(0).gameObject);
-            }
-
-            StartCoroutine(shoeShelf.MoveShoeToSlot(slots));
-        }
+    rerand: int n = Random.Range(0, _totalSlots.Count);
+        if (_totalSlots[n].HasShoe) goto rerand;
+        return _totalSlots[n];
     }
 }

@@ -1,55 +1,38 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShoeShelf : MonoBehaviour
 {
-    [SerializeField] private ShoeSlot[] slots;
+    [SerializeField] private List<Image> _shoeList;
 
-    void Start()
+    void Awake()
     {
-        slots = GetComponentsInChildren<ShoeSlot>();
-        foreach (var slot in slots)
+        _shoeList = Utils.GetComponentChildren<Image>(this.transform);
+        foreach (var shoe in _shoeList)
+            shoe.gameObject.SetActive(false);
+    }
+    public void OnSetShoe(List<Sprite> items)
+    {
+        if (items.Count <= _shoeList.Count)
         {
-            ShoeView shoe = slot.transform.GetComponentInChildren<ShoeView>();
-            if (shoe != null)
+            for (int i = 0; i < items.Count; i++)
             {
-                shoe.LockDrag = true;
+                Image slot = this.RandomSlot();
+                slot.gameObject.SetActive(true);
+                slot.sprite = items[i];
             }
-                
         }
     }
-    public IEnumerator MoveShoeToSlot(ShoeSlot[] slotTarget)
+
+    public Image RandomSlot()
     {
-        yield return new WaitForEndOfFrame();
+    rerand: int n = Random.Range(0, _shoeList.Count);
+        if (_shoeList[n].IsActive()) goto rerand;
 
-        float duration = 0.5f;
-
-        for (int i = 0; i < slots.Length; i++)
-        {
-            ShoeView shoe = slots[i].GetComponentInChildren<ShoeView>();
-
-            if (shoe != null)
-            {
-                int targetIndex = i;
-                shoe.transform.SetParent(transform.root);
-
-                shoe.transform.DOMove(slotTarget[targetIndex].transform.position, duration)
-                    .SetEase(Ease.OutQuad)
-                    .OnComplete(() =>
-                    {
-                        if (shoe != null && slotTarget[targetIndex] != null)
-                        {
-                            shoe.transform.SetParent(slotTarget[targetIndex].transform);
-                            shoe.transform.localPosition = Vector3.zero;
-                            shoe.LockDrag = false;
-                        }
-                    });
-
-                // Phóng to đồng thời
-                shoe.transform.DOScale(Vector3.one, duration).SetEase(Ease.OutBack);
-            }
-            yield return new WaitForSeconds(0.1f);
-        }
+        return _shoeList[n];
     }
 }

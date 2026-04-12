@@ -1,56 +1,24 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class ShoeSlot : MonoBehaviour, IDropHandler
+public class ShoeSlot : MonoBehaviour
 {
-    public Action OnItemDropped;
-    public Action OnItemRemoved;
-    private ShoeView trackedShoe;
-    public ShoeView TrackedShoe => trackedShoe;
-
-    void Start()
-    {
-        ShoeView shoe = GetComponentInChildren<ShoeView>();
-        if (shoe != null)
-        {
-            trackedShoe = shoe;
-            shoe.OnChangedSlot += HandleShoeChanged;
-        }
+    private Image _imageShoe;
+    
+    private void Awake() {
+        _imageShoe = this.transform.GetChild(0).GetComponent<Image>();
+        _imageShoe.gameObject.SetActive(false);
     }
 
-    public void OnDrop(PointerEventData eventData)
+    internal void OnSetSlot(Sprite spr)
     {
-        if (trackedShoe == null)
-        {
-            ShoeView shoe = eventData.pointerDrag.GetComponent<ShoeView>();
-            if (shoe != null)
-            {
-                trackedShoe = shoe;
-                shoe.parentAfterDrag = transform;
-                shoe.OnChangedSlot += HandleShoeChanged;
-            }
-        }
-        OnItemDropped?.Invoke();
+        _imageShoe.gameObject.SetActive(true);
+        _imageShoe.sprite = spr;
+        _imageShoe.SetNativeSize();
     }
 
-    public void AddShoe(ShoeView shoe)
-    {
-        if(trackedShoe == null)
-        {
-            trackedShoe = shoe;
-            shoe.parentAfterDrag = transform;
-            shoe.OnChangedSlot += HandleShoeChanged;
-        }
-    }
-
-    private void HandleShoeChanged()
-    {
-        if (trackedShoe != null && trackedShoe.transform.parent != transform)
-        {
-            trackedShoe.OnChangedSlot -= HandleShoeChanged;
-            trackedShoe = null;
-            OnItemRemoved?.Invoke();
-        }
-    }
+    public bool HasShoe => _imageShoe.gameObject.activeInHierarchy;
+    public Sprite ShoeSprite => _imageShoe.sprite;
 }
