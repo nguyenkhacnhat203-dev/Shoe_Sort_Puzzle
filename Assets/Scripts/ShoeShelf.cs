@@ -9,6 +9,8 @@ public class ShoeShelf : MonoBehaviour
 {
     [SerializeField] private List<Image> _shoeList;
 
+    public List<Image> ShoeList => _shoeList;
+
     void Awake()
     {
         _shoeList = Utils.GetComponentChildren<Image>(this.transform);
@@ -31,7 +33,7 @@ public class ShoeShelf : MonoBehaviour
     public Image RandomSlot()
     {
     rerand: int n = Random.Range(0, _shoeList.Count);
-        if (_shoeList[n].IsActive()) goto rerand;
+        if (_shoeList[n].gameObject.activeInHierarchy) goto rerand;
 
         return _shoeList[n];
     }

@@ -34,7 +34,6 @@ public class GameManager : MonoBehaviour
             for (int j = 0; j < 6; j++)
                 useShoe.Add(takeShoe[i]);
         }
-        Debug.Log("Use shoe: "+useShoe.Count);
 
         for (int i = 0; i < useShoe.Count; i++)
         {
@@ -56,7 +55,6 @@ public class GameManager : MonoBehaviour
             if (activeBox)
             {
                 List<Sprite> listShoe = Utils.TakeAndRemoveRandom<Sprite>(useShoe, shoePerBox[i]);
-                Debug.Log("Use Shoe: "+useShoe.Count);
                 _listBox[i].OnInitBox(shelfPerBox[i], listShoe);
             }
         }
