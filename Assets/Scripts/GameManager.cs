@@ -6,8 +6,11 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    private static GameManager _instance;
+    public static GameManager Instance => _instance;
+
     [SerializeField] private int _totalShoe;
+    [SerializeField] private int _totalShoeModel;
     [SerializeField] private int _totalBox;
     [SerializeField] private Transform _gridBox;
 
@@ -18,6 +21,7 @@ public class GameManager : MonoBehaviour
     {
         _listBox = _gridBox.GetComponentsInChildren<ShoeBox>().ToList();
         _totalSpriteShoe = Resources.LoadAll<Sprite>("Items").ToList();
+        _instance = this;
     }
     void Start()
     {
@@ -26,14 +30,16 @@ public class GameManager : MonoBehaviour
 
     private void OnInitLevel()
     {
-        List<Sprite> takeShoe = _totalSpriteShoe.OrderBy(x => Random.value).Take(_totalShoe).ToList();
-        List<Sprite> useShoe = new List<Sprite>();
-
-        for (int i = 0; i < takeShoe.Count; i++)
+        if (_totalShoe < _totalShoeModel || _totalShoe % 3 != 0)
         {
-            for (int j = 0; j < 6; j++)
-                useShoe.Add(takeShoe[i]);
+            Debug.LogError("Total shoe must be greater than total shoe model and divisible by 3");
+            return;
         }
+
+        List<Sprite> takeShoe = _totalSpriteShoe.OrderBy(x => Random.value).Take(_totalShoeModel).ToList();
+        List<Sprite> useShoe = new List<Sprite>();
+        
+        this.FillUseShoe(takeShoe, useShoe, _totalShoe);
 
         for (int i = 0; i < useShoe.Count; i++)
         {
@@ -60,6 +66,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void FillUseShoe(List<Sprite> takeShoe, List<Sprite> useShoe, int target, int indexShoe = 0)
+    {
+        if (useShoe.Count >= target)
+            return;
+
+        if (indexShoe >= takeShoe.Count)
+            indexShoe = 0;
+
+        for (int i = 0; i < 3; i++)
+        {
+            useShoe.Add(takeShoe[indexShoe]);
+        }
+
+        FillUseShoe(takeShoe, useShoe, target, indexShoe + 1);
+    }
+
     private List<int> DistributeEvelyn(int boxCount, int totalShelf)
     {
         List<int> result = new List<int>();
@@ -83,5 +105,14 @@ public class GameManager : MonoBehaviour
         }
 
         return result;
+    }
+
+    public void OnMinusShoe()
+    {
+        _totalShoe-=3;
+        if (_totalShoe <= 0)
+        {
+            Debug.Log("Win");
+        }
     }
 }

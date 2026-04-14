@@ -55,6 +55,11 @@ public class DragDropController : MonoBehaviour
                         this.ClearCache();
                 }
             }
+            else
+            {
+                _cachedSlot?.OnHideShoe();
+                this.ClearCache();
+            }
         }
         if (Input.GetMouseButtonUp(0) && _hasDrag)
         {
@@ -63,12 +68,21 @@ public class DragDropController : MonoBehaviour
                 _imageShoe.transform.DOMove(_cachedSlot.transform.position, 0.2f).OnComplete(() =>
                 {
                     _imageShoe.gameObject.SetActive(false);
-                    _currentSlot.OnPrepareShelf();
                     _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
                     _cachedSlot.OnActive(true);
                     _cachedSlot.OnCheckMerge();
+                    Debug.Log("Check prepare shelf");
+                    _currentSlot.OnPrepareShelf();
                     _cachedSlot = null;
                     _currentSlot = null;
+                });
+            }
+            else
+            {
+                _imageShoe.transform.DOMove(_currentSlot.transform.position,0.2f).OnComplete(() =>
+                {
+                    _imageShoe.gameObject.SetActive(false);
+                    _currentSlot.OnActive(true);
                 });
             }
 

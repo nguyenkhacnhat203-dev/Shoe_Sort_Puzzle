@@ -32,8 +32,9 @@ public class ShoeBox : MonoBehaviour
 
         List<List<Sprite>> remainShoe = new List<List<Sprite>>();
 
-        for (int i = 0; i < totalShelf - 1; i++)
+        for (int i = 0; i < totalShelf; i++)
         {
+            Debug.Log("List shoe: " + listShoe.Count);
             if (listShoe.Count == 0)
                 break;
             remainShoe.Add(new List<Sprite>());
@@ -45,6 +46,7 @@ public class ShoeBox : MonoBehaviour
         while (listShoe.Count > 0)
         {
             int rans = Random.Range(0, remainShoe.Count);
+            Debug.Log("Remain shoe: " + remainShoe.Count + " - Rans: " + rans + " - List shoe: " + listShoe.Count);
             if (remainShoe[rans].Count < 3)
             {
                 int n = Random.Range(0, listShoe.Count);
@@ -75,6 +77,7 @@ public class ShoeBox : MonoBehaviour
                     slot.OnActive(false);
                 }
                 this.OnPrepareShelf();
+                GameManager.Instance.OnMinusShoe();
             }
         }
     }

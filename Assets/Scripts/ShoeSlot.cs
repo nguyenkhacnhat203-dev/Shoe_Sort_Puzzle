@@ -64,6 +64,7 @@ public class ShoeSlot : MonoBehaviour
     public void OnPrepareShelf()
     {
         _shoeBox.OnCheckPrepareShelf();
+        Debug.Log("Prepare shelf");
     }
 
     public bool HasShoe => _imageShoe.gameObject.activeInHierarchy && _imageShoe.color == _normalColor;

@@ -4554,7 +4554,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 174f47ffe7db0d74f877f966ff842558, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _totalShoe: 3
+  _totalShoe: 15
+  _totalShoeModel: 3
   _totalBox: 4
   _gridBox: {fileID: 1024836026}
 --- !u!4 &676381675
