@@ -13,6 +13,8 @@ public class ShoeBox : MonoBehaviour
     private List<ShoeShelf> _totalShelf;
     private Stack<ShoeShelf> _stackShelf = new Stack<ShoeShelf>();
 
+    public List<ShoeSlot> TotalSlots => _totalSlots;
+
     private void Awake()
     {
         _totalSlots = Utils.GetComponentChildren<ShoeSlot>(_slotContainer);
@@ -34,7 +36,6 @@ public class ShoeBox : MonoBehaviour
 
         for (int i = 0; i < totalShelf; i++)
         {
-            Debug.Log("List shoe: " + listShoe.Count);
             if (listShoe.Count == 0)
                 break;
             remainShoe.Add(new List<Sprite>());
@@ -46,7 +47,6 @@ public class ShoeBox : MonoBehaviour
         while (listShoe.Count > 0)
         {
             int rans = Random.Range(0, remainShoe.Count);
-            Debug.Log("Remain shoe: " + remainShoe.Count + " - Rans: " + rans + " - List shoe: " + listShoe.Count);
             if (remainShoe[rans].Count < 3)
             {
                 int n = Random.Range(0, listShoe.Count);
@@ -92,6 +92,7 @@ public class ShoeBox : MonoBehaviour
         if (_stackShelf.Count > 0)
         {
             ShoeShelf shelf = _stackShelf.Pop();
+                
             for (int i = 0; i < shelf.ShoeList.Count; i++)
             {
                 Image img = shelf.ShoeList[i];
@@ -102,6 +103,19 @@ public class ShoeBox : MonoBehaviour
                 }
             }
             shelf.gameObject.SetActive(false);
+        }
+    }
+
+    public void OnCheckShelfEmpty()
+    {
+        if (_stackShelf.Count > 0)
+        {
+            ShoeShelf shelf = _stackShelf.Peek();
+            if (shelf.CheckEmpty())
+            {
+                _stackShelf.Pop();
+                shelf.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -141,5 +155,12 @@ public class ShoeBox : MonoBehaviour
                 return false;
         }
         return true;
+    }
+
+    internal ShoeShelf GetFirstShelf()
+    {
+        if (_stackShelf.Count > 0)
+            return _stackShelf.Peek();
+        return null;
     }
 }

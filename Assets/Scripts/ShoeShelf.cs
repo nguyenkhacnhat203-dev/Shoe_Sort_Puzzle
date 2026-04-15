@@ -37,4 +37,14 @@ public class ShoeShelf : MonoBehaviour
 
         return _shoeList[n];
     }
+
+    public bool CheckEmpty()
+    {
+        foreach (var shoe in _shoeList)
+        {
+            if (shoe.gameObject.activeInHierarchy)
+                return false;
+        }
+        return true;
+    }
 }

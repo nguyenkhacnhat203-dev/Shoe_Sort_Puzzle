@@ -4,12 +4,20 @@ using UnityEngine.UI;
 
 public class DragDropController : MonoBehaviour
 {
+    [SerializeField] private float _timeSuggest = 3f;
     [SerializeField] private Image _imageShoe;
     private ShoeSlot _currentSlot, _cachedSlot;
     private bool _hasDrag;
+    private float _timeCount = 0;
 
     void Update()
     {
+        _timeCount += Time.deltaTime;
+        if (_timeCount >= _timeSuggest)
+        {
+            _timeCount = 0;
+            GameManager.Instance.OnCheckAndShake();
+        }
         if (Input.GetMouseButtonDown(0))
         {
             _currentSlot = Utils.GetRayCastUI<ShoeSlot>(Input.mousePosition);
@@ -79,7 +87,7 @@ public class DragDropController : MonoBehaviour
             }
             else
             {
-                _imageShoe.transform.DOMove(_currentSlot.transform.position,0.2f).OnComplete(() =>
+                _imageShoe.transform.DOMove(_currentSlot.transform.position, 0.2f).OnComplete(() =>
                 {
                     _imageShoe.gameObject.SetActive(false);
                     _currentSlot.OnActive(true);

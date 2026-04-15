@@ -11,6 +11,8 @@ public class ShoeSlot : MonoBehaviour
     private Color _normalColor = new Color(1, 1, 1);
     private Color _fadeColor = new Color(1, 1, 1, 0.7f);
 
+    public Image ImageShoe => _imageShoe;
+
     private void Awake()
     {
         _imageShoe = this.transform.GetChild(0).GetComponent<Image>();
@@ -64,7 +66,11 @@ public class ShoeSlot : MonoBehaviour
     public void OnPrepareShelf()
     {
         _shoeBox.OnCheckPrepareShelf();
-        Debug.Log("Prepare shelf");
+    }
+
+    internal void OnShake()
+    {
+        _imageShoe.transform.DOShakePosition(0.5f, 10, 180);
     }
 
     public bool HasShoe => _imageShoe.gameObject.activeInHierarchy && _imageShoe.color == _normalColor;

@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Unity.VisualStudio.Editor;
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _totalShoeModel;
     [SerializeField] private int _totalBox;
     [SerializeField] private Transform _gridBox;
+    [SerializeField] private List<Image> _magnetList;
 
     private List<ShoeBox> _listBox;
     private float _avgShelf;
@@ -38,7 +40,7 @@ public class GameManager : MonoBehaviour
 
         List<Sprite> takeShoe = _totalSpriteShoe.OrderBy(x => Random.value).Take(_totalShoeModel).ToList();
         List<Sprite> useShoe = new List<Sprite>();
-        
+
         this.FillUseShoe(takeShoe, useShoe, _totalShoe);
 
         for (int i = 0; i < useShoe.Count; i++)
@@ -109,10 +111,169 @@ public class GameManager : MonoBehaviour
 
     public void OnMinusShoe()
     {
-        _totalShoe-=3;
+        _totalShoe -= 3;
         if (_totalShoe <= 0)
         {
             Debug.Log("Win");
+        }
+    }
+
+    public void OnCheckAndShake()
+    {
+        Dictionary<string, List<ShoeSlot>> groups = new Dictionary<string, List<ShoeSlot>>();
+
+        foreach (var box in _listBox)
+        {
+            if (box.gameObject.activeInHierarchy)
+            {
+                foreach (var slot in box.TotalSlots)
+                {
+                    if (slot.HasShoe)
+                    {
+                        string name = slot.ShoeSprite.name;
+                        if (!groups.ContainsKey(name))
+                            groups.Add(name, new List<ShoeSlot>());
+                        groups[name].Add(slot);
+                    }
+                }
+            }
+        }
+
+        foreach (var group in groups)
+        {
+            if (group.Value.Count >= 3)
+            {
+                foreach (var slot in group.Value)
+                {
+                    slot.OnShake();
+                }
+                return;
+            }
+        }
+    }
+
+    public void Onmagnet()
+    {
+        Dictionary<string, List<Image>> groups = new Dictionary<string, List<Image>>();
+
+        foreach (var box in _listBox)
+        {
+            if (box.gameObject.activeInHierarchy)
+            {
+                foreach (var slot in box.TotalSlots)
+                {
+                    if (slot.HasShoe)
+                    {
+                        string name = slot.ShoeSprite.name;
+                        if (!groups.ContainsKey(name))
+                            groups.Add(name, new List<Image>());
+                        groups[name].Add(slot.ImageShoe);
+                    }
+                }
+
+                ShoeShelf shelf = box.GetFirstShelf();
+
+                if (shelf != null)
+                {
+                    foreach (var img in shelf.ShoeList)
+                    {
+                        if (img.gameObject.activeInHierarchy)
+                        {
+                            string name = img.sprite.name;
+                            if (!groups.ContainsKey(name))
+                                groups.Add(name, new List<Image>());
+                            groups[name].Add(img);
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach (var group in groups)
+        {
+            if (group.Value.Count >= 3)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector3 posMagnet = _magnetList[i].transform.position;
+                    Image imageMagnet = _magnetList[i];
+                    Image imageShoe = group.Value[i];
+                    imageShoe.gameObject.SetActive(false);
+                    imageMagnet.gameObject.SetActive(true);
+                    imageMagnet.sprite = imageShoe.sprite;
+                    imageMagnet.transform.position = imageShoe.transform.position;
+                    imageMagnet.rectTransform.sizeDelta = imageShoe.rectTransform.sizeDelta;
+                    imageMagnet.transform.localEulerAngles = imageShoe.transform.localEulerAngles;
+
+                    imageMagnet.transform.DOMove(posMagnet, 0.7f).OnComplete(() =>
+                    {
+                        imageMagnet.gameObject.SetActive(false);
+                    });
+                }
+                foreach (var box in _listBox)
+                {
+                    if (box.gameObject.activeInHierarchy)
+                    {
+                        if (box.HasBoxEmpty())
+                        {
+                            box.OnCheckPrepareShelf();
+                        }
+                        box.OnCheckShelfEmpty();
+                    }
+                }
+                this.OnMinusShoe();
+                break;
+            }
+        }
+    }
+
+    public void OnShuffle()
+    {
+        List<Image> imageShoe = new List<Image>();
+        foreach (var box in _listBox)
+        {
+            if (box.gameObject.activeInHierarchy)
+            {
+                foreach (var slot in box.TotalSlots)
+                {
+                    if (slot.HasShoe)
+                    {
+                        imageShoe.Add(slot.ImageShoe);
+                    }
+                }
+
+                ShoeShelf shelf = box.GetFirstShelf();
+
+                if (shelf != null)
+                {
+                    foreach (var img in shelf.ShoeList)
+                    {
+                        if (img.gameObject.activeInHierarchy)
+                        {
+                            string name = img.sprite.name;
+                            imageShoe.Add(img);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < imageShoe.Count; i++)
+        {
+            int rand = Random.Range(i, imageShoe.Count);
+            (imageShoe[i].sprite, imageShoe[rand].sprite) = (imageShoe[rand].sprite, imageShoe[i].sprite);
+        }
+    }
+
+    public void OnMoreBox()
+    {
+        foreach (var box in _listBox)
+        {
+            if (!box.gameObject.activeInHierarchy)
+            {
+                box.gameObject.SetActive(true);
+                break;
+            }
         }
     }
 }
