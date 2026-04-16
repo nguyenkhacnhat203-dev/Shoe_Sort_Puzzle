@@ -42,6 +42,30 @@ public static class Utils
         return null;
     }
 
+    public static T GetRayCastWorld2D<T>(Vector2 screenPosition) where T : Component
+    {
+        var cam = Camera.main;
+        if (cam == null)
+            return null;
+
+        Vector2 worldPoint = cam.ScreenToWorldPoint(screenPosition);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(worldPoint, Vector2.zero);
+
+        foreach (var hit in hits)
+        {
+            if (hit.collider != null)
+            {
+                T component = hit.collider.gameObject.GetComponent<T>();
+                if (component != null)
+                {
+                    return component;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static List<T> TakeAndRemoveRandom<T>(List<T> source, int n)
     {
         List<T> result = new List<T>();

@@ -7,13 +7,13 @@ using UnityEngine.UI;
 
 public class ShoeShelf : MonoBehaviour
 {
-    [SerializeField] private List<Image> _shoeList;
+    [SerializeField] private List<SpriteRenderer> _shoeList;
 
-    public List<Image> ShoeList => _shoeList;
+    public List<SpriteRenderer> ShoeList => _shoeList;
 
     void Awake()
     {
-        _shoeList = Utils.GetComponentChildren<Image>(this.transform);
+        _shoeList = Utils.GetComponentChildren<SpriteRenderer>(this.transform);
         foreach (var shoe in _shoeList)
             shoe.gameObject.SetActive(false);
     }
@@ -23,14 +23,14 @@ public class ShoeShelf : MonoBehaviour
         {
             for (int i = 0; i < items.Count; i++)
             {
-                Image slot = this.RandomSlot();
+                SpriteRenderer slot = this.RandomSlot();
                 slot.gameObject.SetActive(true);
                 slot.sprite = items[i];
             }
         }
     }
 
-    public Image RandomSlot()
+    public SpriteRenderer RandomSlot()
     {
     rerand: int n = Random.Range(0, _shoeList.Count);
         if (_shoeList[n].gameObject.activeInHierarchy) goto rerand;

@@ -8,12 +8,14 @@ public class ShoeBox : MonoBehaviour
 {
     [SerializeField] private Transform _slotContainer;
     [SerializeField] private Transform _shelfContainer;
+    [SerializeField] private BoxCollider2D _boxCollider;
 
     private List<ShoeSlot> _totalSlots;
     private List<ShoeShelf> _totalShelf;
     private Stack<ShoeShelf> _stackShelf = new Stack<ShoeShelf>();
 
     public List<ShoeSlot> TotalSlots => _totalSlots;
+    public BoxCollider2D BoxCollider => _boxCollider;
 
     private void Awake()
     {
@@ -92,10 +94,10 @@ public class ShoeBox : MonoBehaviour
         if (_stackShelf.Count > 0)
         {
             ShoeShelf shelf = _stackShelf.Pop();
-                
+
             for (int i = 0; i < shelf.ShoeList.Count; i++)
             {
-                Image img = shelf.ShoeList[i];
+                SpriteRenderer img = shelf.ShoeList[i];
                 if (img.gameObject.activeInHierarchy)
                 {
                     _totalSlots[i].OnPrepareItem(img);

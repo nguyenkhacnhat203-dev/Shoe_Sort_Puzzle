@@ -6,16 +6,16 @@ using UnityEngine.UI;
 
 public class ShoeSlot : MonoBehaviour
 {
-    private Image _imageShoe;
+    private SpriteRenderer _imageShoe;
     private ShoeBox _shoeBox;
     private Color _normalColor = new Color(1, 1, 1);
     private Color _fadeColor = new Color(1, 1, 1, 0.7f);
 
-    public Image ImageShoe => _imageShoe;
+    public SpriteRenderer ImageShoe => _imageShoe;
 
     private void Awake()
     {
-        _imageShoe = this.transform.GetChild(0).GetComponent<Image>();
+        _imageShoe = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
         _imageShoe.gameObject.SetActive(false);
 
         _shoeBox = this.transform.GetComponentInParent<ShoeBox>();
@@ -25,7 +25,7 @@ public class ShoeSlot : MonoBehaviour
     {
         _imageShoe.gameObject.SetActive(true);
         _imageShoe.sprite = spr;
-        _imageShoe.SetNativeSize();
+        // _imageShoe.SetNativeSize();
     }
 
     public void OnActive(bool active)
@@ -50,7 +50,7 @@ public class ShoeSlot : MonoBehaviour
         _shoeBox.CheckMerge();
     }
 
-    public void OnPrepareItem(Image img)
+    public void OnPrepareItem(SpriteRenderer img)
     {
         this.OnSetSlot(img.sprite);
         _imageShoe.color = _normalColor;
@@ -70,7 +70,7 @@ public class ShoeSlot : MonoBehaviour
 
     internal void OnShake()
     {
-        _imageShoe.transform.DOShakePosition(0.5f, 10, 180);
+        _imageShoe.transform.DOShakePosition(0.5f, 0.1f, 180);
     }
 
     public bool HasShoe => _imageShoe.gameObject.activeInHierarchy && _imageShoe.color == _normalColor;

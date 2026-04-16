@@ -13,14 +13,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _totalShoe;
     [SerializeField] private int _totalShoeModel;
     [SerializeField] private int _totalBox;
+    [SerializeField] private GameObject _prefabBox;
     [SerializeField] private Transform _gridBox;
-    [SerializeField] private List<Image> _magnetList;
+    [SerializeField] private float _spaceBox;
+    [SerializeField] private int _maxRowBox, _maxColBox;
+    [SerializeField] private List<SpriteRenderer> _magnetList;
+    [SerializeField] private RectTransform _magnetTarget;
 
     private List<ShoeBox> _listBox;
     private float _avgShelf;
     private List<Sprite> _totalSpriteShoe;
     void Awake()
     {
+        OnSpawnBox(_totalBox, _spaceBox, _maxRowBox, _maxColBox);
         _listBox = _gridBox.GetComponentsInChildren<ShoeBox>().ToList();
         _totalSpriteShoe = Resources.LoadAll<Sprite>("Items").ToList();
         _instance = this;
@@ -66,6 +71,30 @@ public class GameManager : MonoBehaviour
                 _listBox[i].OnInitBox(shelfPerBox[i], listShoe);
             }
         }
+    }
+
+    private void OnSpawnBox(int totalBox, float space, int maxRow = 3, int maxCol = 3)
+    {
+        int boxCount = 0;
+        float stepX = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size.x + space;
+        float stepY = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size.y + space;
+        int midCol = Mathf.CeilToInt((float)maxCol / 2) - 1;
+
+        for (int i = 0; i < maxRow; i++)
+        {
+            if (boxCount == totalBox)
+                break;
+            Vector3 spawnPos = new Vector3(-stepX * midCol, -stepY * i, 0);
+            for (int j = 0; j < maxCol; j++)
+            {
+                if (boxCount == totalBox)
+                    break;
+                Instantiate(_prefabBox, spawnPos, Quaternion.identity, _gridBox);
+                spawnPos += new Vector3(stepX, 0, 0);
+                boxCount++;
+            }
+        }
+
     }
 
     private void FillUseShoe(List<Sprite> takeShoe, List<Sprite> useShoe, int target, int indexShoe = 0)
@@ -152,9 +181,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Onmagnet()
+    public void OnMagnet()
     {
-        Dictionary<string, List<Image>> groups = new Dictionary<string, List<Image>>();
+        Dictionary<string, List<SpriteRenderer>> groups = new Dictionary<string, List<SpriteRenderer>>();
 
         foreach (var box in _listBox)
         {
@@ -166,7 +195,7 @@ public class GameManager : MonoBehaviour
                     {
                         string name = slot.ShoeSprite.name;
                         if (!groups.ContainsKey(name))
-                            groups.Add(name, new List<Image>());
+                            groups.Add(name, new List<SpriteRenderer>());
                         groups[name].Add(slot.ImageShoe);
                     }
                 }
@@ -181,7 +210,7 @@ public class GameManager : MonoBehaviour
                         {
                             string name = img.sprite.name;
                             if (!groups.ContainsKey(name))
-                                groups.Add(name, new List<Image>());
+                                groups.Add(name, new List<SpriteRenderer>());
                             groups[name].Add(img);
                         }
                     }
@@ -189,20 +218,23 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        Vector3 posMagnet = Camera.main.ScreenToWorldPoint(_magnetTarget.position);
+        posMagnet.z = 0;
+
         foreach (var group in groups)
         {
             if (group.Value.Count >= 3)
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    Vector3 posMagnet = _magnetList[i].transform.position;
-                    Image imageMagnet = _magnetList[i];
-                    Image imageShoe = group.Value[i];
+
+                    SpriteRenderer imageMagnet = _magnetList[i];
+                    SpriteRenderer imageShoe = group.Value[i];
                     imageShoe.gameObject.SetActive(false);
                     imageMagnet.gameObject.SetActive(true);
                     imageMagnet.sprite = imageShoe.sprite;
                     imageMagnet.transform.position = imageShoe.transform.position;
-                    imageMagnet.rectTransform.sizeDelta = imageShoe.rectTransform.sizeDelta;
+                    // imageMagnet.rectTransform.sizeDelta = imageShoe.rectTransform.sizeDelta;
                     imageMagnet.transform.localEulerAngles = imageShoe.transform.localEulerAngles;
 
                     imageMagnet.transform.DOMove(posMagnet, 0.7f).OnComplete(() =>
@@ -229,7 +261,7 @@ public class GameManager : MonoBehaviour
 
     public void OnShuffle()
     {
-        List<Image> imageShoe = new List<Image>();
+        List<SpriteRenderer> imageShoe = new List<SpriteRenderer>();
         foreach (var box in _listBox)
         {
             if (box.gameObject.activeInHierarchy)
@@ -267,13 +299,16 @@ public class GameManager : MonoBehaviour
 
     public void OnMoreBox()
     {
-        foreach (var box in _listBox)
-        {
-            if (!box.gameObject.activeInHierarchy)
-            {
-                box.gameObject.SetActive(true);
-                break;
-            }
-        }
+        int currentBoxCount = _listBox.Count;
+        int midCol = Mathf.CeilToInt((float)_maxColBox / 2) - 1;
+        float stepX = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size.x + _spaceBox;
+        float stepY = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size.y + _spaceBox;
+
+        int row = currentBoxCount / _maxColBox;
+        int col = currentBoxCount % _maxColBox;
+
+        GameObject box = Instantiate(_prefabBox, new Vector3(-stepX * (midCol - col), -stepY * row, 0), Quaternion.identity, _gridBox);
+
+        _listBox.Add(box.GetComponent<ShoeBox>());
     }
 }

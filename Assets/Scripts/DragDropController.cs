@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class DragDropController : MonoBehaviour
 {
     [SerializeField] private float _timeSuggest = 3f;
-    [SerializeField] private Image _imageShoe;
+    [SerializeField] private SpriteRenderer _imageShoe;
     private ShoeSlot _currentSlot, _cachedSlot;
     private bool _hasDrag;
     private float _timeCount = 0;
@@ -20,23 +20,25 @@ public class DragDropController : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(0))
         {
-            _currentSlot = Utils.GetRayCastUI<ShoeSlot>(Input.mousePosition);
+            _currentSlot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
             if (_currentSlot != null && _currentSlot.HasShoe)
             {
                 _hasDrag = true;
                 _cachedSlot = _currentSlot;
                 _imageShoe.gameObject.SetActive(true);
                 _imageShoe.sprite = _currentSlot.ShoeSprite;
-                _imageShoe.transform.position = Input.mousePosition;
+                _imageShoe.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
                 _currentSlot.OnHideShoe();
             }
         }
         if (_hasDrag)
         {
-            _imageShoe.transform.position = Input.mousePosition;
+            Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            worldPos.z = 0;
+            _imageShoe.transform.position = worldPos;
 
-            ShoeSlot slot = Utils.GetRayCastUI<ShoeSlot>(Input.mousePosition);
+            ShoeSlot slot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
             if (slot != null)
             {
                 if (!slot.HasShoe)
@@ -79,7 +81,6 @@ public class DragDropController : MonoBehaviour
                     _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
                     _cachedSlot.OnActive(true);
                     _cachedSlot.OnCheckMerge();
-                    Debug.Log("Check prepare shelf");
                     _currentSlot.OnPrepareShelf();
                     _cachedSlot = null;
                     _currentSlot = null;

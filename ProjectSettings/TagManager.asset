@@ -44,6 +44,12 @@ TagManager:
   - name: Shoe Box
     uniqueID: 3262287283
     locked: 0
+  - name: Slot
+    uniqueID: 3088774341
+    locked: 0
   - name: Shoe
     uniqueID: 1909419599
+    locked: 0
+  - name: Shoe Drag
+    uniqueID: 2568723519
     locked: 0
