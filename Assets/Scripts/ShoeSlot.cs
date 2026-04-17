@@ -50,7 +50,7 @@ public class ShoeSlot : MonoBehaviour
         _shoeBox.CheckMerge();
     }
 
-    public void OnPrepareItem(SpriteRenderer img)
+    public Tween OnPrepareItem(SpriteRenderer img)
     {
         this.OnSetSlot(img.sprite);
         _imageShoe.color = _normalColor;
@@ -59,8 +59,10 @@ public class ShoeSlot : MonoBehaviour
         _imageShoe.transform.localScale = img.transform.localScale;
         _imageShoe.transform.localEulerAngles = img.transform.localEulerAngles;
 
-        _imageShoe.transform.DOLocalMove(Vector3.zero, 0.2f);
-        _imageShoe.transform.DOScale(Vector3.one, 0.2f);
+        Sequence itemSeq = DOTween.Sequence();
+        itemSeq.Join(_imageShoe.transform.DOLocalMove(Vector3.zero, 0.2f));
+        itemSeq.Join(_imageShoe.transform.DOScale(Vector3.one, 0.2f));
+        return itemSeq;
     }
 
     public void OnPrepareShelf()

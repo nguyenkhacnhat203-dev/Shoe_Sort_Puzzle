@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -74,11 +75,22 @@ public class ShoeBox : MonoBehaviour
         {
             if (this.CanMerge())
             {
+                Sequence seq = DOTween.Sequence();
                 foreach (var slot in _totalSlots)
                 {
-                    slot.OnActive(false);
+                    Vector3 posImage = slot.ImageShoe.transform.localPosition;
+                    seq.Join(slot.ImageShoe.transform.DOLocalMoveY(0.2f, 0.2f));
+                    seq.Join(slot.ImageShoe.DOFade(0, 0.2f).OnComplete(() =>
+                    {
+                        slot.OnActive(false);
+                        slot.ImageShoe.transform.localPosition = posImage;
+                    }));
+                    seq.AppendInterval(0.1f);
                 }
-                this.OnPrepareShelf();
+                seq.OnComplete(() =>
+                {
+                    this.OnPrepareShelf();
+                });
                 GameManager.Instance.OnMinusShoe();
             }
         }
@@ -94,17 +106,26 @@ public class ShoeBox : MonoBehaviour
         if (_stackShelf.Count > 0)
         {
             ShoeShelf shelf = _stackShelf.Pop();
+            Sequence mainSeq = DOTween.Sequence();
 
             for (int i = 0; i < shelf.ShoeList.Count; i++)
             {
                 SpriteRenderer img = shelf.ShoeList[i];
                 if (img.gameObject.activeInHierarchy)
                 {
-                    _totalSlots[i].OnPrepareItem(img);
+                    mainSeq.Join(_totalSlots[i].OnPrepareItem(img));
+                    mainSeq.AppendInterval(0.1f);
                     img.gameObject.SetActive(false);
                 }
             }
-            shelf.gameObject.SetActive(false);
+            mainSeq.OnComplete(() =>
+            {
+                shelf.transform.DOLocalMoveY(0.05f, 0.5f);
+                shelf.ImgShelf.DOFade(0, 0.5f).OnComplete(() =>
+                {
+                    shelf.gameObject.SetActive(false);
+                });
+            });
         }
     }
 

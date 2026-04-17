@@ -8,8 +8,10 @@ using UnityEngine.UI;
 public class ShoeShelf : MonoBehaviour
 {
     [SerializeField] private List<SpriteRenderer> _shoeList;
+    [SerializeField] private SpriteRenderer _imgShelf;
 
     public List<SpriteRenderer> ShoeList => _shoeList;
+    public SpriteRenderer ImgShelf => _imgShelf;
 
     void Awake()
     {

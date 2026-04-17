@@ -1425,6 +1425,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shoeList: []
+  _imgShelf: {fileID: 9179046310921609232}
 --- !u!1 &5872138386445091874
 GameObject:
   m_ObjectHideFlags: 0
@@ -1539,6 +1540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shoeList: []
+  _imgShelf: {fileID: 659476409335211166}
 --- !u!1 &5893115008558397907
 GameObject:
   m_ObjectHideFlags: 0
@@ -1737,6 +1739,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shoeList: []
+  _imgShelf: {fileID: 8505632124241109923}
 --- !u!1 &6647914362408717878
 GameObject:
   m_ObjectHideFlags: 0
@@ -1935,6 +1938,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shoeList: []
+  _imgShelf: {fileID: 7645578101159988589}
 --- !u!1 &7083087300181597352
 GameObject:
   m_ObjectHideFlags: 0
@@ -2049,6 +2053,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shoeList: []
+  _imgShelf: {fileID: 5079225991326027675}
 --- !u!1 &7575717087749198662
 GameObject:
   m_ObjectHideFlags: 0
