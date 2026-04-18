@@ -34,14 +34,6 @@ public class ShoeBox : MonoBehaviour
             ShoeSlot slot = this.RandomSlot();
             slot.OnSetSlot(listSlot[i]);
         }
-        
-        if(this.GetSlotNull() == null && this.CanMerge())
-        {
-            rerand: int n = Random.Range(0, listSlot.Count);
-            (list[n], listSlot[n]) = (listSlot[n], list[n]);
-            _totalSlots[n].OnSetSlot(listSlot[n]);
-            if (this.CanMerge()) goto rerand;
-        }
 
         List<List<Sprite>> remainShoe = new List<List<Sprite>>();
 

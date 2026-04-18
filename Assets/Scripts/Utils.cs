@@ -72,7 +72,11 @@ public static class Utils
         n = Mathf.Min(n, source.Count);
         for (int i = 0; i < n; i++)
         {
-            int randIndex = Random.Range(0, source.Count);
+        rerand: int randIndex = Random.Range(0, source.Count);
+            if (i != 0 && result[i - 1].Equals(source[randIndex])) // kiểm tra nếu phần tử vừa lấy trùng với phần tử trước đó, nếu có thì lấy lại
+            {
+                goto rerand;
+            }
             result.Add(source[randIndex]);
             source.RemoveAt(randIndex);
         }
