@@ -53,3 +53,9 @@ TagManager:
   - name: Shoe Drag
     uniqueID: 2568723519
     locked: 0
+  - name: BG
+    uniqueID: 1290757259
+    locked: 0
+  - name: MainCanvas
+    uniqueID: 1201410213
+    locked: 0
