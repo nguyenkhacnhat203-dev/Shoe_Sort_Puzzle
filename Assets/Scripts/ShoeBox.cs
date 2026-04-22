@@ -24,9 +24,13 @@ public class ShoeBox : MonoBehaviour
         _totalShelf = Utils.GetComponentChildren<ShoeShelf>(_shelfContainer);
     }
 
-    public void OnInitBox(int totalShelf, List<Sprite> listShoe)
+    public void OnInitBox(int totalShelf, List<Sprite> listShoe, bool forceNotFull)
     {
-        int shoeCount = Random.Range(1, _totalSlots.Count + 1);
+        int shoeCount;
+        if (forceNotFull)
+            shoeCount = Random.Range(1, 3);
+        else
+            shoeCount = Random.Range(1, _totalSlots.Count + 1);
         List<Sprite> list = listShoe;
         List<Sprite> listSlot = Utils.TakeAndRemoveRandom<Sprite>(list, shoeCount);
         for (int i = 0; i < listSlot.Count; i++)
@@ -49,13 +53,13 @@ public class ShoeBox : MonoBehaviour
 
         while (listShoe.Count > 0)
         {
-            int rans = Random.Range(0, remainShoe.Count);
-            if (remainShoe[rans].Count < 3)
-            {
-                int n = Random.Range(0, listShoe.Count);
-                remainShoe[rans].Add(listShoe[n]);
-                listShoe.RemoveAt(n);
-            }
+            var availableShelves = remainShoe.Where(s => s.Count < 3).ToList();
+            if (availableShelves.Count == 0) break; // Avoid infinite loop if no shelf has space
+
+            int rans = Random.Range(0, availableShelves.Count);
+            int n = Random.Range(0, listShoe.Count);
+            availableShelves[rans].Add(listShoe[n]);
+            listShoe.RemoveAt(n);
         }
         for (int i = 0; i < _totalShelf.Count; i++)
         {
@@ -75,10 +79,11 @@ public class ShoeBox : MonoBehaviour
         {
             if (this.CanMerge())
             {
-                Sequence seq = DOTween.Sequence();
+                Sequence seq = DOTween.Sequence().SetLink(gameObject);
                 foreach (var slot in _totalSlots)
                 {
                     Vector3 posImage = slot.ImageShoe.transform.localPosition;
+                    slot.ImageShoe.transform.DOKill();
                     seq.Join(slot.ImageShoe.transform.DOLocalMoveY(0.2f, 0.2f));
                     seq.Join(slot.ImageShoe.DOFade(0, 0.2f).OnComplete(() =>
                     {
@@ -118,10 +123,12 @@ public class ShoeBox : MonoBehaviour
                     img.gameObject.SetActive(false);
                 }
             }
-            mainSeq.OnComplete(() =>
+            mainSeq.SetLink(gameObject).OnComplete(() =>
             {
-                shelf.transform.DOLocalMoveY(0.05f, 0.5f);
-                shelf.ImgShelf.DOFade(0, 0.5f).OnComplete(() =>
+                shelf.transform.DOKill();
+                shelf.transform.DOLocalMoveY(0.05f, 0.5f).SetLink(shelf.gameObject);
+                shelf.ImgShelf.DOKill();
+                shelf.ImgShelf.DOFade(0, 0.5f).SetLink(shelf.gameObject).OnComplete(() =>
                 {
                     shelf.gameObject.SetActive(false);
                 });
@@ -155,9 +162,9 @@ public class ShoeBox : MonoBehaviour
 
     private ShoeSlot RandomSlot()
     {
-    rerand: int n = Random.Range(0, _totalSlots.Count);
-        if (_totalSlots[n].HasShoe) goto rerand;
-        return _totalSlots[n];
+        var availableSlots = _totalSlots.Where(s => !s.HasShoe).ToList();
+        if (availableSlots.Count == 0) return null;
+        return availableSlots[Random.Range(0, availableSlots.Count)];
     }
 
     public ShoeSlot GetSlotNull()

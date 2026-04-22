@@ -1,9 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,11 +19,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private RectTransform _magnetTarget;
 
     private List<ShoeBox> _listBox;
-    private float _avgShelf;
+    private float _avgShelf, _cellWidth, _cellHeight, _scale, _startY;
     private List<Sprite> _totalSpriteShoe;
     void Awake()
     {
-        OnSpawnBox(_totalBox, _spaceBox, _maxRowBox, _maxColBox);
+        OnSpawnBox(_spaceBox, _maxRowBox, _maxColBox);
         _listBox = _gridBox.GetComponentsInChildren<ShoeBox>().ToList();
         _totalSpriteShoe = Resources.LoadAll<Sprite>("Items").ToList();
         _instance = this;
@@ -68,33 +66,55 @@ public class GameManager : MonoBehaviour
             if (activeBox)
             {
                 List<Sprite> listShoe = Utils.TakeAndRemoveRandom<Sprite>(useShoe, shoePerBox[i]);
-                _listBox[i].OnInitBox(shelfPerBox[i], listShoe);
+                bool forceNotFull = (i == _totalBox - 1);
+                _listBox[i].OnInitBox(shelfPerBox[i], listShoe, forceNotFull);
             }
         }
     }
 
-    private void OnSpawnBox(int totalBox, float space, int maxRow = 3, int maxCol = 3)
+    private void OnSpawnBox(float spacing, int maxRow = 3, int maxCol = 3)
     {
-        int boxCount = 0;
-        float stepX = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size.x + space;
-        float stepY = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size.y + space;
-        int midCol = Mathf.CeilToInt((float)maxCol / 2) - 1;
+        Vector2 size = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size;
+        float cameraHeight = Camera.main.orthographicSize * 2;
+        float cameraWidth = cameraHeight * Camera.main.aspect;
+        float availableWidth = cameraWidth - spacing * (maxCol - 1);
+        float availableHeight = cameraHeight - spacing * (maxRow - 1);
+        float cellWidth = availableWidth / maxCol;
+        float cellHeight = availableHeight / maxRow;
+        float scaleX = cellWidth / size.x;
+        float scaleY = cellHeight / size.y;
+        float scale = Mathf.Min(scaleX, scaleY);
 
-        for (int i = 0; i < maxRow; i++)
+        cellWidth = size.x * scale;
+        cellHeight = size.y * scale;
+        float gridWidth = maxCol * cellWidth + (maxCol - 1) * spacing;
+        float gridHeight = maxRow * cellHeight + (maxRow - 1) * spacing;
+
+        int total = _totalBox;
+        int fullRows = total / maxCol;
+        int lastRowCount = total % maxCol;
+        for (int i = 0; i < total; i++)
         {
-            if (boxCount == totalBox)
-                break;
-            Vector3 spawnPos = new Vector3(-stepX * midCol, -stepY * i, 0);
-            for (int j = 0; j < maxCol; j++)
+            int row = i / maxCol;
+            int col = i % maxCol;
+
+            int currentCols = maxCol;
+            if (row == fullRows && lastRowCount != 0)
             {
-                if (boxCount == totalBox)
-                    break;
-                Instantiate(_prefabBox, spawnPos, Quaternion.identity, _gridBox);
-                spawnPos += new Vector3(stepX, 0, 0);
-                boxCount++;
+                currentCols = lastRowCount;
             }
+            float currentRowWidth = currentCols * cellWidth + (currentCols - 1) * spacing;
+            float startX = -currentRowWidth / 2 + cellWidth / 2;
+            float startY = gridHeight / 2 - cellHeight / 2;
+            Vector3 pos = new Vector3(startX + col * (cellWidth + spacing), startY - row * (cellHeight + spacing), 0);
+            GameObject obj = Instantiate(_prefabBox, pos, Quaternion.identity, _gridBox);
+            obj.transform.localScale = Vector3.one * scale;
         }
 
+        _cellWidth = cellWidth;
+        _cellHeight = cellHeight;
+        _scale = scale;
+        _startY = gridHeight / 2 - cellHeight / 2;
     }
 
     private void FillUseShoe(List<Sprite> takeShoe, List<Sprite> useShoe, int target, int indexShoe = 0)
@@ -234,13 +254,16 @@ public class GameManager : MonoBehaviour
                     imageMagnet.gameObject.SetActive(true);
                     imageMagnet.sprite = imageShoe.sprite;
                     imageMagnet.transform.position = imageShoe.transform.position;
-                    // imageMagnet.rectTransform.sizeDelta = imageShoe.rectTransform.sizeDelta;
                     imageMagnet.transform.localEulerAngles = imageShoe.transform.localEulerAngles;
 
-                    imageMagnet.transform.DOMove(posMagnet, 0.7f).OnComplete(() =>
-                    {
-                        imageMagnet.gameObject.SetActive(false);
-                    });
+                    imageMagnet.transform.DOKill();
+
+                    imageMagnet.transform.DOMove(posMagnet, 0.7f)
+                        .SetLink(imageMagnet.gameObject)
+                        .OnComplete(() =>
+                        {
+                            imageMagnet.gameObject.SetActive(false);
+                        });
                 }
                 foreach (var box in _listBox)
                 {
@@ -299,16 +322,46 @@ public class GameManager : MonoBehaviour
 
     public void OnMoreBox()
     {
-        int currentBoxCount = _listBox.Count;
-        int midCol = Mathf.CeilToInt((float)_maxColBox / 2) - 1;
-        float stepX = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size.x + _spaceBox;
-        float stepY = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size.y + _spaceBox;
+        _totalBox++;
+        if (_totalBox > 9)
+            return;
 
-        int row = currentBoxCount / _maxColBox;
-        int col = currentBoxCount % _maxColBox;
+        // spawn object mới
+        GameObject obj = Instantiate(_prefabBox, _gridBox);
+        obj.transform.localScale = Vector3.one * _scale;
 
-        GameObject box = Instantiate(_prefabBox, new Vector3(-stepX * (midCol - col), -stepY * row, 0), Quaternion.identity, _gridBox);
+        ShoeBox box = obj.GetComponent<ShoeBox>();
+        _listBox.Add(box);
 
-        _listBox.Add(box.GetComponent<ShoeBox>());
+        // layout lại toàn bộ
+        Relayout();
+    }
+    private void Relayout()
+    {
+        int total = _listBox.Count;
+        int fullRows = total / _maxColBox;
+        int lastRowCount = total % _maxColBox;
+
+        for (int i = 0; i < total; i++)
+        {
+            int row = i / _maxColBox;
+            int col = i % _maxColBox;
+
+            int currentCols = _maxColBox;
+
+            if (row == fullRows && lastRowCount != 0)
+            {
+                currentCols = lastRowCount;
+            }
+
+            float currentRowWidth = currentCols * _cellWidth + (currentCols - 1) * _spaceBox;
+            float startX = -currentRowWidth / 2 + _cellWidth / 2;
+
+            _listBox[i].transform.localPosition = new Vector3(
+                startX + col * (_cellWidth + _spaceBox),
+                _startY - row * (_cellHeight + _spaceBox),
+                0
+            );
+        }
     }
 }

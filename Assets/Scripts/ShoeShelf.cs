@@ -34,10 +34,9 @@ public class ShoeShelf : MonoBehaviour
 
     public SpriteRenderer RandomSlot()
     {
-    rerand: int n = Random.Range(0, _shoeList.Count);
-        if (_shoeList[n].gameObject.activeInHierarchy) goto rerand;
-
-        return _shoeList[n];
+        var availableSlots = _shoeList.Where(s => !s.gameObject.activeInHierarchy).ToList();
+        if (availableSlots.Count == 0) return null;
+        return availableSlots[Random.Range(0, availableSlots.Count)];
     }
 
     public bool CheckEmpty()
