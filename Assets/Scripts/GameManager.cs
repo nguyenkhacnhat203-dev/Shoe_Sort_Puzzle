@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -17,6 +19,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _maxRowBox, _maxColBox;
     [SerializeField] private List<SpriteRenderer> _magnetList;
     [SerializeField] private RectTransform _magnetTarget;
+    [SerializeField] private int _timeCountdown;
+    [SerializeField] private TextMeshProUGUI _textTime;
 
     private List<ShoeBox> _listBox;
     private float _avgShelf, _cellWidth, _cellHeight, _scale, _startY;
@@ -31,6 +35,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         OnInitLevel();
+        StartCoroutine(StartCountdown(_timeCountdown));
     }
 
     private void OnInitLevel()
@@ -69,6 +74,29 @@ public class GameManager : MonoBehaviour
                 bool forceNotFull = (i == _totalBox - 1);
                 _listBox[i].OnInitBox(shelfPerBox[i], listShoe, forceNotFull);
             }
+        }
+    }
+
+    IEnumerator StartCountdown(int seconds)
+    {
+        int remaining = seconds;
+        while (remaining > 0)
+        {
+            int minutes = remaining / 60;
+            int second = remaining % 60;
+            _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
+            yield return new WaitForSeconds(1);
+            remaining--;
+        }
+        _textTime.text = string.Format("{0:00}:{1:00}", 0, 0);
+        this.OnTimeFinish();
+    }
+
+    private void OnTimeFinish()
+    {
+        if (_totalBox > 0)
+        {
+            Debug.Log("Lose");
         }
     }
 
