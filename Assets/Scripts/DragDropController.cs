@@ -1,6 +1,5 @@
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class DragDropController : MonoBehaviour
 {
@@ -75,24 +74,32 @@ public class DragDropController : MonoBehaviour
         {
             if (_cachedSlot != null)
             {
-                _imageShoe.transform.DOMove(_cachedSlot.transform.position, 0.2f).OnComplete(() =>
-                {
-                    _imageShoe.gameObject.SetActive(false);
-                    _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
-                    _cachedSlot.OnActive(true);
-                    _cachedSlot.OnCheckMerge();
-                    _currentSlot.OnPrepareShelf();
-                    _cachedSlot = null;
-                    _currentSlot = null;
-                });
+                _imageShoe.transform.DOKill();
+
+                _imageShoe.transform.DOMove(_cachedSlot.transform.position, 0.2f)
+                    .SetLink(_imageShoe.gameObject)
+                    .OnComplete(() =>
+                    {
+                        _imageShoe.gameObject.SetActive(false);
+                        _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
+                        _cachedSlot.OnActive(true);
+                        _cachedSlot.OnCheckMerge();
+                        _currentSlot.OnPrepareShelf();
+                        _cachedSlot = null;
+                        _currentSlot = null;
+                    });
             }
             else
             {
-                _imageShoe.transform.DOMove(_currentSlot.transform.position, 0.2f).OnComplete(() =>
-                {
-                    _imageShoe.gameObject.SetActive(false);
-                    _currentSlot.OnActive(true);
-                });
+                _imageShoe.transform.DOKill();
+
+                _imageShoe.transform.DOMove(_currentSlot.transform.position, 0.2f)
+                    .SetLink(_imageShoe.gameObject)
+                    .OnComplete(() =>
+                    {
+                        _imageShoe.gameObject.SetActive(false);
+                        _currentSlot.OnActive(true);
+                    });
             }
 
             _hasDrag = false;
@@ -106,5 +113,11 @@ public class DragDropController : MonoBehaviour
             _cachedSlot.OnHideShoe();
             _cachedSlot = null;
         }
+    }
+
+    void OnDestroy()
+    {
+        if (_imageShoe != null)
+            _imageShoe.transform.DOKill();
     }
 }

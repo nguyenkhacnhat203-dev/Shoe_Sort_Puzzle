@@ -59,7 +59,8 @@ public class ShoeSlot : MonoBehaviour
         _imageShoe.transform.localScale = img.transform.localScale;
         _imageShoe.transform.localEulerAngles = img.transform.localEulerAngles;
 
-        Sequence itemSeq = DOTween.Sequence();
+        Sequence itemSeq = DOTween.Sequence().SetLink(gameObject);
+        _imageShoe.transform.DOKill();
         itemSeq.Join(_imageShoe.transform.DOLocalMove(Vector3.zero, 0.2f));
         itemSeq.Join(_imageShoe.transform.DOScale(Vector3.one, 0.2f));
         return itemSeq;
@@ -72,7 +73,8 @@ public class ShoeSlot : MonoBehaviour
 
     internal void OnShake()
     {
-        _imageShoe.transform.DOShakePosition(0.5f, 0.1f, 180);
+        _imageShoe.transform.DOKill();
+        _imageShoe.transform.DOShakePosition(0.5f, 0.1f, 180).SetLink(_imageShoe.gameObject);
     }
 
     public bool HasShoe => _imageShoe.gameObject.activeInHierarchy && _imageShoe.color == _normalColor;
