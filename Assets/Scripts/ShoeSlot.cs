@@ -62,6 +62,7 @@ public class ShoeSlot : MonoBehaviour
         Sequence itemSeq = DOTween.Sequence().SetLink(gameObject);
         _imageShoe.transform.DOKill();
         itemSeq.Join(_imageShoe.transform.DOLocalMove(Vector3.zero, 0.2f));
+        itemSeq.Join(_imageShoe.transform.DORotate(Vector3.zero, 0.2f));
         itemSeq.Join(_imageShoe.transform.DOScale(Vector3.one, 0.2f));
         return itemSeq;
     }
