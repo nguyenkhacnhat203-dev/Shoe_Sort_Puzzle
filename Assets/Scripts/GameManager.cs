@@ -10,25 +10,22 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
     public static GameManager Instance => _instance;
 
-    [SerializeField] private int _totalShoe;
-    [SerializeField] private int _totalShoeModel;
-    [SerializeField] private int _totalBox;
+    [SerializeField] private int _lvId;
     [SerializeField] private GameObject _prefabBox;
     [SerializeField] private Transform _gridBox;
-    [SerializeField] private float _spaceBox;
-    [SerializeField] private int _maxRowBox, _maxColBox;
     [SerializeField] private List<SpriteRenderer> _magnetList;
     [SerializeField] private RectTransform _magnetTarget;
-    [SerializeField] private int _timeCountdown;
     [SerializeField] private TextMeshProUGUI _textTime;
 
+    private int _totalShoe, _totalShoeModel, _totalBox, _timeCountdown;
     private List<ShoeBox> _listBox;
-    private float _avgShelf, _cellWidth, _cellHeight, _scale, _startY;
+    private float _avgShelf;
     private List<Sprite> _totalSpriteShoe;
     void Awake()
     {
-        for(int i=0; i<_totalBox;i++)
-        Instantiate(_prefabBox,_gridBox);
+        LoadLevel(_lvId);
+        for (int i = 0; i < _totalBox; i++)
+            Instantiate(_prefabBox, _gridBox);
         _listBox = _gridBox.GetComponentsInChildren<ShoeBox>().ToList();
         _totalSpriteShoe = Resources.LoadAll<Sprite>("Items").ToList();
         _instance = this;
@@ -37,6 +34,29 @@ public class GameManager : MonoBehaviour
     {
         OnInitLevel();
         StartCoroutine(StartCountdown(_timeCountdown));
+    }
+
+    private void ReadJsonLv(string lvText)
+    {
+        LevelData levelData = JsonUtility.FromJson<LevelData>(lvText);
+
+        _totalBox = levelData.totalBox;
+        _totalShoe = levelData.totalShoe;
+        _totalShoeModel = levelData.totalShoeModel;
+        _timeCountdown = levelData.timeCountdown;
+    }
+
+    private void LoadLevel(int levelId)
+    {
+        TextAsset jsonFile = Resources.Load<TextAsset>($"Levels/level{levelId}");
+        if (jsonFile != null)
+        {
+            ReadJsonLv(jsonFile.text);
+        }
+        else
+        {
+            Debug.LogError($"Level {levelId} not found!");
+        }
     }
 
     private void OnInitLevel()
@@ -241,7 +261,7 @@ public class GameManager : MonoBehaviour
                     imageMagnet.transform.localEulerAngles = imageShoe.transform.localEulerAngles;
 
                     imageMagnet.transform.DOKill();
-
+                    imageMagnet.transform.DORotate(Vector3.zero, 0.7f);
                     imageMagnet.transform.DOMove(posMagnet, 0.7f)
                         .SetLink(imageMagnet.gameObject)
                         .OnComplete(() =>

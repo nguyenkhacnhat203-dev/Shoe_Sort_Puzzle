@@ -441,7 +441,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxColumn: 3
   spacingX: 3
-  spacingY: 3.5
+  spacingY: 3.7
 --- !u!1 &686157998
 GameObject:
   m_ObjectHideFlags: 0
@@ -744,20 +744,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 174f47ffe7db0d74f877f966ff842558, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _totalShoe: 15
-  _totalShoeModel: 3
+  _lvId: 1
+  _totalShoe: 21
+  _totalShoeModel: 4
   _totalBox: 3
   _prefabBox: {fileID: 8411180229911321915, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
   _gridBox: {fileID: 668508977}
-  _spaceBox: 0.5
-  _maxRowBox: 3
-  _maxColBox: 3
   _magnetList:
   - {fileID: 1424357590}
   - {fileID: 791960179}
   - {fileID: 2063434177}
   _magnetTarget: {fileID: 997677230}
-  _timeCountdown: 10
+  _timeCountdown: 30
   _textTime: {fileID: 1544331715}
 --- !u!4 &910669798
 Transform:
@@ -1953,67 +1951,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1001 &6716974287339021616
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448230677247437398, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8411180229911321915, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_Name
-      value: Shoe Box
-      objectReference: {fileID: 0}
-    - target: {fileID: 8411180229911321915, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 962dc508ef864fb40906f08250c84f30, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -2024,4 +1961,3 @@ SceneRoots:
   - {fileID: 910669798}
   - {fileID: 668508977}
   - {fileID: 428649993}
-  - {fileID: 6716974287339021616}
