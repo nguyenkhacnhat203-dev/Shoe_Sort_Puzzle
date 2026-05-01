@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -8,22 +10,22 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
     public static GameManager Instance => _instance;
 
-    [SerializeField] private int _totalShoe;
-    [SerializeField] private int _totalShoeModel;
-    [SerializeField] private int _totalBox;
+    [SerializeField] private int _lvId;
     [SerializeField] private GameObject _prefabBox;
     [SerializeField] private Transform _gridBox;
-    [SerializeField] private float _spaceBox;
-    [SerializeField] private int _maxRowBox, _maxColBox;
     [SerializeField] private List<SpriteRenderer> _magnetList;
     [SerializeField] private RectTransform _magnetTarget;
+    [SerializeField] private TextMeshProUGUI _textTime;
 
+    private int _totalShoe, _totalShoeModel, _totalBox, _timeCountdown;
     private List<ShoeBox> _listBox;
-    private float _avgShelf, _cellWidth, _cellHeight, _scale, _startY;
+    private float _avgShelf;
     private List<Sprite> _totalSpriteShoe;
     void Awake()
     {
-        OnSpawnBox(_spaceBox, _maxRowBox, _maxColBox);
+        LoadLevel(_lvId);
+        for (int i = 0; i < _totalBox; i++)
+            Instantiate(_prefabBox, _gridBox);
         _listBox = _gridBox.GetComponentsInChildren<ShoeBox>().ToList();
         _totalSpriteShoe = Resources.LoadAll<Sprite>("Items").ToList();
         _instance = this;
@@ -31,6 +33,30 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         OnInitLevel();
+        StartCoroutine(StartCountdown(_timeCountdown));
+    }
+
+    private void ReadJsonLv(string lvText)
+    {
+        LevelData levelData = JsonUtility.FromJson<LevelData>(lvText);
+
+        _totalBox = levelData.totalBox;
+        _totalShoe = levelData.totalShoe;
+        _totalShoeModel = levelData.totalShoeModel;
+        _timeCountdown = levelData.timeCountdown;
+    }
+
+    private void LoadLevel(int levelId)
+    {
+        TextAsset jsonFile = Resources.Load<TextAsset>($"Levels/level{levelId}");
+        if (jsonFile != null)
+        {
+            ReadJsonLv(jsonFile.text);
+        }
+        else
+        {
+            Debug.LogError($"Level {levelId} not found!");
+        }
     }
 
     private void OnInitLevel()
@@ -72,49 +98,27 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void OnSpawnBox(float spacing, int maxRow = 3, int maxCol = 3)
+    IEnumerator StartCountdown(int seconds)
     {
-        Vector2 size = _prefabBox.GetComponent<ShoeBox>().BoxCollider.size;
-        float cameraHeight = Camera.main.orthographicSize * 2;
-        float cameraWidth = cameraHeight * Camera.main.aspect;
-        float availableWidth = cameraWidth - spacing * (maxCol - 1);
-        float availableHeight = cameraHeight - spacing * (maxRow - 1);
-        float cellWidth = availableWidth / maxCol;
-        float cellHeight = availableHeight / maxRow;
-        float scaleX = cellWidth / size.x;
-        float scaleY = cellHeight / size.y;
-        float scale = Mathf.Min(scaleX, scaleY);
-
-        cellWidth = size.x * scale;
-        cellHeight = size.y * scale;
-        float gridWidth = maxCol * cellWidth + (maxCol - 1) * spacing;
-        float gridHeight = maxRow * cellHeight + (maxRow - 1) * spacing;
-
-        int total = _totalBox;
-        int fullRows = total / maxCol;
-        int lastRowCount = total % maxCol;
-        for (int i = 0; i < total; i++)
+        int remaining = seconds;
+        while (remaining > 0)
         {
-            int row = i / maxCol;
-            int col = i % maxCol;
-
-            int currentCols = maxCol;
-            if (row == fullRows && lastRowCount != 0)
-            {
-                currentCols = lastRowCount;
-            }
-            float currentRowWidth = currentCols * cellWidth + (currentCols - 1) * spacing;
-            float startX = -currentRowWidth / 2 + cellWidth / 2;
-            float startY = gridHeight / 2 - cellHeight / 2;
-            Vector3 pos = new Vector3(startX + col * (cellWidth + spacing), startY - row * (cellHeight + spacing), 0);
-            GameObject obj = Instantiate(_prefabBox, pos, Quaternion.identity, _gridBox);
-            obj.transform.localScale = Vector3.one * scale;
+            int minutes = remaining / 60;
+            int second = remaining % 60;
+            _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
+            yield return new WaitForSeconds(1);
+            remaining--;
         }
+        _textTime.text = string.Format("{0:00}:{1:00}", 0, 0);
+        this.OnTimeFinish();
+    }
 
-        _cellWidth = cellWidth;
-        _cellHeight = cellHeight;
-        _scale = scale;
-        _startY = gridHeight / 2 - cellHeight / 2;
+    private void OnTimeFinish()
+    {
+        if (_totalBox > 0)
+        {
+            Debug.Log("Lose");
+        }
     }
 
     private void FillUseShoe(List<Sprite> takeShoe, List<Sprite> useShoe, int target, int indexShoe = 0)
@@ -257,7 +261,7 @@ public class GameManager : MonoBehaviour
                     imageMagnet.transform.localEulerAngles = imageShoe.transform.localEulerAngles;
 
                     imageMagnet.transform.DOKill();
-
+                    imageMagnet.transform.DORotate(Vector3.zero, 0.7f);
                     imageMagnet.transform.DOMove(posMagnet, 0.7f)
                         .SetLink(imageMagnet.gameObject)
                         .OnComplete(() =>
@@ -326,42 +330,8 @@ public class GameManager : MonoBehaviour
         if (_totalBox > 9)
             return;
 
-        // spawn object mới
         GameObject obj = Instantiate(_prefabBox, _gridBox);
-        obj.transform.localScale = Vector3.one * _scale;
-
         ShoeBox box = obj.GetComponent<ShoeBox>();
         _listBox.Add(box);
-
-        // layout lại toàn bộ
-        Relayout();
-    }
-    private void Relayout()
-    {
-        int total = _listBox.Count;
-        int fullRows = total / _maxColBox;
-        int lastRowCount = total % _maxColBox;
-
-        for (int i = 0; i < total; i++)
-        {
-            int row = i / _maxColBox;
-            int col = i % _maxColBox;
-
-            int currentCols = _maxColBox;
-
-            if (row == fullRows && lastRowCount != 0)
-            {
-                currentCols = lastRowCount;
-            }
-
-            float currentRowWidth = currentCols * _cellWidth + (currentCols - 1) * _spaceBox;
-            float startX = -currentRowWidth / 2 + _cellWidth / 2;
-
-            _listBox[i].transform.localPosition = new Vector3(
-                startX + col * (_cellWidth + _spaceBox),
-                _startY - row * (_cellHeight + _spaceBox),
-                0
-            );
-        }
     }
 }

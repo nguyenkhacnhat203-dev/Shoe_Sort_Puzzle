@@ -7,6 +7,7 @@ public class DragDropController : MonoBehaviour
     [SerializeField] private SpriteRenderer _imageShoe;
     private ShoeSlot _currentSlot, _cachedSlot;
     private bool _hasDrag;
+    private bool _isCompletingDrag;
     private float _timeCount = 0;
 
     void Update()
@@ -19,6 +20,8 @@ public class DragDropController : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(0))
         {
+            if (_hasDrag || _isCompletingDrag)
+                return;
             _currentSlot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
             if (_currentSlot != null && _currentSlot.HasShoe)
             {
@@ -72,6 +75,8 @@ public class DragDropController : MonoBehaviour
         }
         if (Input.GetMouseButtonUp(0) && _hasDrag)
         {
+            _isCompletingDrag = true;
+
             if (_cachedSlot != null)
             {
                 _imageShoe.transform.DOKill();
@@ -80,13 +85,17 @@ public class DragDropController : MonoBehaviour
                     .SetLink(_imageShoe.gameObject)
                     .OnComplete(() =>
                     {
-                        _imageShoe.gameObject.SetActive(false);
-                        _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
-                        _cachedSlot.OnActive(true);
-                        _cachedSlot.OnCheckMerge();
-                        _currentSlot.OnPrepareShelf();
+                        if (_imageShoe != null && _cachedSlot != null && _currentSlot != null)
+                        {
+                            _imageShoe.gameObject.SetActive(false);
+                            _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
+                            _cachedSlot.OnActive(true);
+                            _cachedSlot.OnCheckMerge();
+                            _currentSlot.OnPrepareShelf();
+                        }
                         _cachedSlot = null;
                         _currentSlot = null;
+                        _isCompletingDrag = false;
                     });
             }
             else
@@ -97,8 +106,12 @@ public class DragDropController : MonoBehaviour
                     .SetLink(_imageShoe.gameObject)
                     .OnComplete(() =>
                     {
-                        _imageShoe.gameObject.SetActive(false);
-                        _currentSlot.OnActive(true);
+                        if (_imageShoe != null && _currentSlot != null)
+                        {
+                            _imageShoe.gameObject.SetActive(false);
+                            _currentSlot.OnActive(true);
+                        }
+                        _isCompletingDrag = false;
                     });
             }
 
@@ -119,5 +132,6 @@ public class DragDropController : MonoBehaviour
     {
         if (_imageShoe != null)
             _imageShoe.transform.DOKill();
+        _isCompletingDrag = false;
     }
 }
