@@ -1,14 +1,13 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ShoeBox : MonoBehaviour
 {
     [SerializeField] private Transform _slotContainer;
     [SerializeField] private Transform _shelfContainer;
+    [SerializeField] private Transform _ShoeBoxLid;
     [SerializeField] private BoxCollider2D _boxCollider;
 
     private List<ShoeSlot> _totalSlots;
@@ -22,6 +21,13 @@ public class ShoeBox : MonoBehaviour
     {
         _totalSlots = Utils.GetComponentChildren<ShoeSlot>(_slotContainer);
         _totalShelf = Utils.GetComponentChildren<ShoeShelf>(_shelfContainer);
+    }
+
+    private void Start()
+    {
+        _ShoeBoxLid.transform.DOKill();
+        _ShoeBoxLid.transform.DOLocalMoveY(1f,0.7f);
+        _ShoeBoxLid.GetComponent<SpriteRenderer>().DOFade(0, 0.7f);
     }
 
     public void OnInitBox(int totalShelf, List<Sprite> listShoe, bool forceNotFull)
