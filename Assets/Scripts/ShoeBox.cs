@@ -26,8 +26,8 @@ public class ShoeBox : MonoBehaviour
     private void Start()
     {
         _ShoeBoxLid.transform.DOKill();
-        _ShoeBoxLid.transform.DOLocalMoveY(1f,0.7f);
-        _ShoeBoxLid.GetComponent<SpriteRenderer>().DOFade(0, 0.7f);
+        _ShoeBoxLid.transform.DOLocalMoveY(1f,1f);
+        _ShoeBoxLid.GetComponent<SpriteRenderer>().DOFade(0, 1f);
     }
 
     public void OnInitBox(int totalShelf, List<Sprite> listShoe, bool forceNotFull)

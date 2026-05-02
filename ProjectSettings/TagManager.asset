@@ -41,6 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: BG
+    uniqueID: 1290757259
+    locked: 0
+  - name: Waitbox
+    uniqueID: 2829373773
+    locked: 0
+  - name: Box
+    uniqueID: 2460105293
+    locked: 0
   - name: Shoe Box
     uniqueID: 3262287283
     locked: 0
@@ -53,8 +62,8 @@ TagManager:
   - name: Shoe Drag
     uniqueID: 2568723519
     locked: 0
-  - name: BG
-    uniqueID: 1290757259
+  - name: 'LidBox '
+    uniqueID: 96286637
     locked: 0
   - name: MainCanvas
     uniqueID: 1201410213

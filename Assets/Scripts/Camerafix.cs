@@ -29,18 +29,15 @@ public class Camerafix : MonoBehaviour
 
     bool IsTabletDevice()
     {
-        float screenRatio = (float)Screen.height / Screen.width;
+        float aspect = (float)Screen.height / Screen.width;
 
-
-        if (screenRatio > 1.3f && screenRatio < 1.45f)
-        {
-            return true;
-        }
-        else if (screenRatio > 1.55f && screenRatio < 1.7f)
-        {
-            return true;
-        }
-
-        return false;
+        return Mathf.Abs(aspect - 4f / 3f) < 0.1f;
     }
+
+    //#if UNITY_EDITOR
+    //    void Update()
+    //    {
+    //        AdjustCamera();
+    //    }
+    //#endif
 }
