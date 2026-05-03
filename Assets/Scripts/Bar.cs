@@ -55,40 +55,44 @@ public class Bar : MonoBehaviour
     private RectTransform parentRect;
 
 
-    private void OnEnable()
-    {
-        parentRect = (RectTransform)transform;
+    //private void OnEnable()
+    //{
+    //    parentRect = (RectTransform)transform;
 
-        btnRects = new RectTransform[] {
-            btn_Shop?.GetComponent<RectTransform>(),
-            btn_Ranking?.GetComponent<RectTransform>(),
-            btn_Home?.GetComponent<RectTransform>(),
-            btn_Teams?.GetComponent<RectTransform>(),
-            btn_Outfit?.GetComponent<RectTransform>()
-        };
+    //    btnRects = new RectTransform[] {
+    //        btn_Shop?.GetComponent<RectTransform>(),
+    //        btn_Ranking?.GetComponent<RectTransform>(),
+    //        btn_Home?.GetComponent<RectTransform>(),
+    //        btn_Teams?.GetComponent<RectTransform>(),
+    //        btn_Outfit?.GetComponent<RectTransform>()
+    //    };
 
-        allPanels = new RectTransform[] {
-            panel_Shop,
-            panel_Ranking,
-            panel_Home,
-            panel_Teams,
-            panel_Outfit
-        };
+    //    allPanels = new RectTransform[] {
+    //        panel_Shop,
+    //        panel_Ranking,
+    //        panel_Home,
+    //        panel_Teams,
+    //        panel_Outfit
+    //    };
 
-        if (jambs != null) foreach (var jamb in jambs) if (jamb != null) jamb.gameObject.SetActive(true);
-        foreach (var btn in btnRects) if (btn != null) btn.gameObject.SetActive(true);
+    //    if (jambs != null) foreach (var jamb in jambs) if (jamb != null) jamb.gameObject.SetActive(true);
+    //    foreach (var btn in btnRects) if (btn != null) btn.gameObject.SetActive(true);
 
-        btn_Shop?.onClick.AddListener(() => ChangeFocus(0));
-        btn_Ranking?.onClick.AddListener(() => ChangeFocus(1));
-        btn_Home?.onClick.AddListener(() => ChangeFocus(2));
-        btn_Teams?.onClick.AddListener(() => ChangeFocus(3));
-        btn_Outfit?.onClick.AddListener(() => ChangeFocus(4));
+    //    btn_Shop?.onClick.AddListener(() => ChangeFocus(0));
+    //    btn_Ranking?.onClick.AddListener(() => ChangeFocus(1));
+    //    btn_Home?.onClick.AddListener(() => ChangeFocus(2));
+    //    btn_Teams?.onClick.AddListener(() => ChangeFocus(3));
+    //    btn_Outfit?.onClick.AddListener(() => ChangeFocus(4));
 
-        if (Shadow != null) Shadow.gameObject.SetActive(true);
+    //    if (Shadow != null) Shadow.gameObject.SetActive(true);
 
-        ChangeFocus(2);
-        SnapToTargets();
-    }
+    //    ChangeFocus(2);
+    //    SnapToTargets();
+    //}
+
+  
+
+
     private void Start()
     {
         parentRect = (RectTransform)transform;

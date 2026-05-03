@@ -26,7 +26,7 @@ public class GameManager : Singleton<GameManager>
     {
         PlayerPrefs.SetInt(LEVEL_KEY, 1);
         _dragAndDrop.enabled = false;
-        UiManager.Instance.ShowMenu();
+        //UiManager.Instance.ShowMenu();
         this.SetLevelText();
     }
 
@@ -205,14 +205,14 @@ public class GameManager : Singleton<GameManager>
         PlayerPrefs.SetInt(LEVEL_KEY, nextLevel);
         this.SetLevelText();
         _dragAndDrop.enabled = false;
-        UiManager.Instance.ShowMenu();
+        //UiManager.Instance.ShowMenu();
     }
 
     public IEnumerator OnLose()
     {
         yield return new WaitForSeconds(0.5f);
         _dragAndDrop.enabled = false;
-        UiManager.Instance.ShowMenu();
+        //UiManager.Instance.ShowMenu();
     }
 
     public void OnCheckAndShake()
