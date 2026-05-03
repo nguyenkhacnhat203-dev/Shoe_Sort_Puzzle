@@ -5,35 +5,52 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    private static GameManager _instance;
-    public static GameManager Instance => _instance;
 
     [SerializeField] private int _lvId;
     [SerializeField] private GameObject _prefabBox;
     [SerializeField] private Transform _gridBox;
     [SerializeField] private List<SpriteRenderer> _magnetList;
     [SerializeField] private RectTransform _magnetTarget;
-    [SerializeField] private TextMeshProUGUI _textTime;
+    [SerializeField] private TextMeshProUGUI _textTime, _textLevel;
+    [SerializeField] private DragDropController _dragAndDrop;
 
     private int _totalShoe, _totalShoeModel, _totalBox, _timeCountdown;
+    private const string LEVEL_KEY = "CURRENT_LEVEL";
     private List<ShoeBox> _listBox;
     private float _avgShelf;
     private List<Sprite> _totalSpriteShoe;
-    void Awake()
-    {
-        LoadLevel(_lvId);
-        for (int i = 0; i < _totalBox; i++)
-            Instantiate(_prefabBox, _gridBox);
-        _listBox = _gridBox.GetComponentsInChildren<ShoeBox>().ToList();
-        _totalSpriteShoe = Resources.LoadAll<Sprite>("Items").ToList();
-        _instance = this;
-    }
+
     void Start()
     {
-        OnInitLevel();
+        PlayerPrefs.SetInt(LEVEL_KEY, 1);
+        _dragAndDrop.enabled = false;
+        UiManager.Instance.ShowMenu();
+        this.SetLevelText();
+    }
+
+    public void OnPlay()
+    {
+        UiManager.Instance.ShowGame();
+        this.LoadLevel();
+        this.OnInitLevel();
+        _dragAndDrop.enabled = true;
         StartCoroutine(StartCountdown(_timeCountdown));
+    }
+
+    private void ClearChildren(Transform parent)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Destroy(parent.GetChild(i).gameObject);
+        }
+    }
+
+    void SetLevelText()
+    {
+        int level = PlayerPrefs.GetInt(LEVEL_KEY, 1);
+        _textLevel.SetText("LEVEL " + level);
     }
 
     private void ReadJsonLv(string lvText)
@@ -46,21 +63,28 @@ public class GameManager : MonoBehaviour
         _timeCountdown = levelData.timeCountdown;
     }
 
-    private void LoadLevel(int levelId)
+    private void LoadLevel()
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>($"Levels/level{levelId}");
+        int level = PlayerPrefs.GetInt(LEVEL_KEY, 1);
+        TextAsset jsonFile = Resources.Load<TextAsset>($"Levels/level{level}");
         if (jsonFile != null)
         {
             ReadJsonLv(jsonFile.text);
         }
         else
         {
-            Debug.LogError($"Level {levelId} not found!");
+            Debug.LogError($"Level {level} not found!");
         }
     }
 
     private void OnInitLevel()
     {
+        LoadLevel();
+        for (int i = 0; i < _totalBox; i++)
+            Instantiate(_prefabBox, _gridBox);
+        _listBox = _gridBox.GetComponentsInChildren<ShoeBox>().ToList();
+        _totalSpriteShoe = Resources.LoadAll<Sprite>("Items").ToList();
+
         if (_totalShoe < _totalShoeModel || _totalShoe % 3 != 0)
         {
             Debug.LogError("Total shoe must be greater than total shoe model and divisible by 3");
@@ -118,6 +142,7 @@ public class GameManager : MonoBehaviour
         if (_totalBox > 0)
         {
             Debug.Log("Lose");
+            StartCoroutine(OnLose());
         }
     }
 
@@ -167,8 +192,27 @@ public class GameManager : MonoBehaviour
         _totalShoe -= 3;
         if (_totalShoe <= 0)
         {
-            Debug.Log("Win");
+            Debug.Log("Win"); //Show popup win
+            StartCoroutine(OnWin());
         }
+    }
+
+    public IEnumerator OnWin()
+    {
+        yield return new WaitForSeconds(1f);
+        this.ClearChildren(_gridBox);
+        int nextLevel = PlayerPrefs.GetInt(LEVEL_KEY, 1) + 1;
+        PlayerPrefs.SetInt(LEVEL_KEY, nextLevel);
+        this.SetLevelText();
+        _dragAndDrop.enabled = false;
+        UiManager.Instance.ShowMenu();
+    }
+
+    public IEnumerator OnLose()
+    {
+        yield return new WaitForSeconds(0.5f);
+        _dragAndDrop.enabled = false;
+        UiManager.Instance.ShowMenu();
     }
 
     public void OnCheckAndShake()
@@ -205,6 +249,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    #region Booster
     public void OnMagnet()
     {
         Dictionary<string, List<SpriteRenderer>> groups = new Dictionary<string, List<SpriteRenderer>>();
@@ -242,7 +287,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        Vector3 posMagnet = Camera.main.ScreenToWorldPoint(_magnetTarget.position);
+        // Vector3 posMagnet = Camera.main.ScreenToWorldPoint(_magnetTarget.position);
+        Vector3 posMagnet = _magnetTarget.position;
         posMagnet.z = 0;
 
         foreach (var group in groups)
@@ -334,4 +380,5 @@ public class GameManager : MonoBehaviour
         ShoeBox box = obj.GetComponent<ShoeBox>();
         _listBox.Add(box);
     }
+    #endregion
 }

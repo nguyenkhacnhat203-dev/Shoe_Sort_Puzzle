@@ -74,7 +74,7 @@ public class ShoeSlot : MonoBehaviour
 
     internal void OnShake()
     {
-        if (DOTween.IsTweening(_imageShoe.transform))
+        if(_imageShoe.transform.localPosition != Vector3.zero)
             return;
         _imageShoe.transform.DOShakePosition(0.5f, 0.1f, 180).SetLink(_imageShoe.gameObject);
     }
