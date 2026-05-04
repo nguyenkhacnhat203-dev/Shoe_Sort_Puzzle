@@ -62,6 +62,9 @@ TagManager:
   - name: Shoe Drag
     uniqueID: 2568723519
     locked: 0
+  - name: Line Shoe
+    uniqueID: 2719269153
+    locked: 0
   - name: 'LidBox '
     uniqueID: 96286637
     locked: 0

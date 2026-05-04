@@ -6,27 +6,26 @@ using UnityEngine;
 public class ShoeBox : MonoBehaviour
 {
     [SerializeField] private Transform _slotContainer;
-    [SerializeField] private Transform _shelfContainer;
     [SerializeField] private Transform _ShoeBoxLid;
     [SerializeField] private BoxCollider2D _boxCollider;
 
     private List<ShoeSlot> _totalSlots;
-    private List<ShoeShelf> _totalShelf;
-    private Stack<ShoeShelf> _stackShelf = new Stack<ShoeShelf>();
+    private ShoeShelf _shelf;
 
     public List<ShoeSlot> TotalSlots => _totalSlots;
+    public ShoeShelf Shelf => _shelf;
     public BoxCollider2D BoxCollider => _boxCollider;
 
     private void Awake()
     {
         _totalSlots = Utils.GetComponentChildren<ShoeSlot>(_slotContainer);
-        _totalShelf = Utils.GetComponentChildren<ShoeShelf>(_shelfContainer);
+        _shelf = GetComponentInChildren<ShoeShelf>();
     }
 
     private void Start()
     {
         _ShoeBoxLid.transform.DOKill();
-        _ShoeBoxLid.transform.DOLocalMoveY(1f,0.7f);
+        _ShoeBoxLid.transform.DOLocalMoveY(1f, 0.7f);
         _ShoeBoxLid.GetComponent<SpriteRenderer>().DOFade(0, 0.7f);
     }
 
@@ -67,17 +66,20 @@ public class ShoeBox : MonoBehaviour
             availableShelves[rans].Add(listShoe[n]);
             listShoe.RemoveAt(n);
         }
-        for (int i = 0; i < _totalShelf.Count; i++)
-        {
-            bool active = i < remainShoe.Count;
-            _totalShelf[i].gameObject.SetActive(active);
 
-            if (active)
-            {
-                _totalShelf[i].OnSetShoe(remainShoe[i]);
-                _stackShelf.Push(_totalShelf[i]);
-            }
-        }
+        _shelf.SetShoeList(remainShoe);
+
+        // for (int i = 0; i < _totalShelf.Count; i++)
+        // {
+        //     bool active = i < remainShoe.Count;
+        //     _totalShelf[i].gameObject.SetActive(active);
+
+        //     if (active)
+        //     {
+        //         _totalShelf[i].OnSetShoe(remainShoe[i]);
+        //         _stackShelf.Push(_totalShelf[i]);
+        //     }
+        // }
     }
     public void CheckMerge()
     {
@@ -114,44 +116,34 @@ public class ShoeBox : MonoBehaviour
     }
     private void OnPrepareShelf()
     {
-        if (_stackShelf.Count > 0)
-        {
-            ShoeShelf shelf = _stackShelf.Pop();
-            Sequence mainSeq = DOTween.Sequence();
+        Sequence mainSeq = DOTween.Sequence();
 
-            for (int i = 0; i < shelf.ShoeList.Count; i++)
+        for (int i = 0; i < _shelf.ShoeSlot.Count; i++)
+        {
+            SpriteRenderer img = _shelf.ShoeSlot[i];
+            if (img.gameObject.activeInHierarchy)
             {
-                SpriteRenderer img = shelf.ShoeList[i];
-                if (img.gameObject.activeInHierarchy)
-                {
-                    mainSeq.Join(_totalSlots[i].OnPrepareItem(img));
-                    mainSeq.AppendInterval(0.1f);
-                    img.gameObject.SetActive(false);
-                }
+                mainSeq.Join(_totalSlots[i].OnPrepareItem(img));
+                mainSeq.AppendInterval(0.1f);
+                img.gameObject.SetActive(false);
             }
-            mainSeq.SetLink(gameObject).OnComplete(() =>
-            {
-                shelf.transform.DOKill();
-                shelf.transform.DOLocalMoveY(0.05f, 0.5f).SetLink(shelf.gameObject);
-                shelf.ImgShelf.DOKill();
-                shelf.ImgShelf.DOFade(0, 0.5f).SetLink(shelf.gameObject).OnComplete(() =>
-                {
-                    shelf.gameObject.SetActive(false);
-                });
-            });
         }
+        mainSeq.SetLink(gameObject).OnComplete(() =>
+        {
+            _shelf.OnPrepareShelf();
+            
+            if (this.HasBoxEmpty() && !_shelf.CheckEmpty())
+            {
+                this.OnPrepareShelf();
+            }
+        });
     }
 
     public void OnCheckShelfEmpty()
     {
-        if (_stackShelf.Count > 0)
+        if (_shelf.CheckEmpty())
         {
-            ShoeShelf shelf = _stackShelf.Peek();
-            if (shelf.CheckEmpty())
-            {
-                _stackShelf.Pop();
-                shelf.gameObject.SetActive(false);
-            }
+            _shelf.OnPrepareShelf();
         }
     }
 
@@ -191,12 +183,5 @@ public class ShoeBox : MonoBehaviour
                 return false;
         }
         return true;
-    }
-
-    internal ShoeShelf GetFirstShelf()
-    {
-        if (_stackShelf.Count > 0)
-            return _stackShelf.Peek();
-        return null;
     }
 }

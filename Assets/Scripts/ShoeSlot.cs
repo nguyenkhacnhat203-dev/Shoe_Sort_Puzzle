@@ -25,7 +25,6 @@ public class ShoeSlot : MonoBehaviour
     {
         _imageShoe.gameObject.SetActive(true);
         _imageShoe.sprite = spr;
-        // _imageShoe.SetNativeSize();
     }
 
     public void OnActive(bool active)

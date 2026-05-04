@@ -13,7 +13,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private Transform _gridBox;
     [SerializeField] private List<SpriteRenderer> _magnetList;
     [SerializeField] private RectTransform _magnetTarget;
-    [SerializeField] private TextMeshProUGUI _textTime, _textLevel;
+    [SerializeField] private TextMeshProUGUI _textTime, _textLevelHome, _textLevelGame;
     [SerializeField] private DragDropController _dragAndDrop;
 
     private int _totalShoe, _totalShoeModel, _totalBox, _timeCountdown;
@@ -21,36 +21,62 @@ public class GameManager : Singleton<GameManager>
     private List<ShoeBox> _listBox;
     private float _avgShelf;
     private List<Sprite> _totalSpriteShoe;
+    private bool isWin = false;
+    private bool _isTimerStarted = false;
 
     void Start()
     {
-        PlayerPrefs.SetInt(LEVEL_KEY, 1);
+        // PlayerPrefs.SetInt(LEVEL_KEY, 1);
         _dragAndDrop.enabled = false;
         //UiManager.Instance.ShowMenu();
-        this.SetLevelText();
+        this.SetLevelTextHome();
     }
 
     public void OnPlay()
     {
         UiManager.Instance.ShowGame();
+        UiManager.Instance.popup_Next.SetActive(false);
+        
+        this.ClearChildren(_gridBox);
         this.LoadLevel();
+        this.SetLevelTextGame();
         this.OnInitLevel();
         _dragAndDrop.enabled = true;
-        StartCoroutine(StartCountdown(_timeCountdown));
+
+        _isTimerStarted = false;
+        int minutes = _timeCountdown / 60;
+        int second = _timeCountdown % 60;
+        _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
+    }
+
+    public void StartTimer()
+    {
+        if (!_isTimerStarted)
+        {
+            _isTimerStarted = true;
+            StartCoroutine(StartCountdown(_timeCountdown));
+        }
     }
 
     private void ClearChildren(Transform parent)
     {
-        for (int i = 0; i < parent.childCount; i++)
+        for (int i = parent.childCount - 1; i >= 0; i--)
         {
-            Destroy(parent.GetChild(i).gameObject);
+            Transform child = parent.GetChild(i);
+            child.SetParent(null);
+            Destroy(child.gameObject);
         }
     }
 
-    void SetLevelText()
+    void SetLevelTextHome()
     {
         int level = PlayerPrefs.GetInt(LEVEL_KEY, 1);
-        _textLevel.SetText("LEVEL " + level);
+        _textLevelHome.SetText("LEVEL " + level);
+    }
+    void SetLevelTextGame()
+    {
+        int level = PlayerPrefs.GetInt(LEVEL_KEY, 1);
+        _textLevelGame.SetText("Level " + level);
     }
 
     private void ReadJsonLv(string lvText)
@@ -79,7 +105,6 @@ public class GameManager : Singleton<GameManager>
 
     private void OnInitLevel()
     {
-        LoadLevel();
         for (int i = 0; i < _totalBox; i++)
             Instantiate(_prefabBox, _gridBox);
         _listBox = _gridBox.GetComponentsInChildren<ShoeBox>().ToList();
@@ -91,7 +116,7 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
-        List<Sprite> takeShoe = _totalSpriteShoe.OrderBy(x => Random.value).Take(_totalShoeModel).ToList();
+        List<Sprite> takeShoe = _totalSpriteShoe.Take(_totalShoeModel).ToList();
         List<Sprite> useShoe = new List<Sprite>();
 
         this.FillUseShoe(takeShoe, useShoe, _totalShoe);
@@ -127,6 +152,8 @@ public class GameManager : Singleton<GameManager>
         int remaining = seconds;
         while (remaining > 0)
         {
+            if (isWin)
+                yield break;
             int minutes = remaining / 60;
             int second = remaining % 60;
             _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
@@ -199,12 +226,14 @@ public class GameManager : Singleton<GameManager>
 
     public IEnumerator OnWin()
     {
+        isWin = true;
         yield return new WaitForSeconds(1f);
-        this.ClearChildren(_gridBox);
+        // this.ClearChildren(_gridBox);
         int nextLevel = PlayerPrefs.GetInt(LEVEL_KEY, 1) + 1;
         PlayerPrefs.SetInt(LEVEL_KEY, nextLevel);
-        this.SetLevelText();
+        this.SetLevelTextHome();
         _dragAndDrop.enabled = false;
+        UiManager.Instance.popup_Next.SetActive(true);
         //UiManager.Instance.ShowMenu();
     }
 
@@ -252,6 +281,7 @@ public class GameManager : Singleton<GameManager>
     #region Booster
     public void OnMagnet()
     {
+        this.StartTimer();
         Dictionary<string, List<SpriteRenderer>> groups = new Dictionary<string, List<SpriteRenderer>>();
 
         foreach (var box in _listBox)
@@ -269,11 +299,11 @@ public class GameManager : Singleton<GameManager>
                     }
                 }
 
-                ShoeShelf shelf = box.GetFirstShelf();
+                ShoeShelf shelf = box.Shelf;
 
                 if (shelf != null)
                 {
-                    foreach (var img in shelf.ShoeList)
+                    foreach (var img in shelf.ShoeSlot)
                     {
                         if (img.gameObject.activeInHierarchy)
                         {
@@ -334,6 +364,7 @@ public class GameManager : Singleton<GameManager>
 
     public void OnShuffle()
     {
+        this.StartTimer();
         List<SpriteRenderer> imageShoe = new List<SpriteRenderer>();
         foreach (var box in _listBox)
         {
@@ -347,15 +378,14 @@ public class GameManager : Singleton<GameManager>
                     }
                 }
 
-                ShoeShelf shelf = box.GetFirstShelf();
+                ShoeShelf shelf = box.Shelf;
 
                 if (shelf != null)
                 {
-                    foreach (var img in shelf.ShoeList)
+                    foreach (var img in shelf.ShoeSlot)
                     {
                         if (img.gameObject.activeInHierarchy)
                         {
-                            string name = img.sprite.name;
                             imageShoe.Add(img);
                         }
                     }
@@ -372,6 +402,7 @@ public class GameManager : Singleton<GameManager>
 
     public void OnMoreBox()
     {
+        this.StartTimer();
         _totalBox++;
         if (_totalBox > 9)
             return;

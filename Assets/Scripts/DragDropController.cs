@@ -1,14 +1,16 @@
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 
 public class DragDropController : MonoBehaviour
 {
     [SerializeField] private float _timeSuggest = 3f;
-    [SerializeField] private SpriteRenderer _imageShoe;
+    [SerializeField] private SpriteRenderer _imageShoe, _lineShoe;
     private ShoeSlot _currentSlot, _cachedSlot;
-    private bool _hasDrag;
-    private bool _isCompletingDrag;
-    private float _timeCount = 0;
+    private bool _hasDrag = false, _hasPress = false;
+    private bool _isCompletingDrag = false, _isCompletingPress = false;
+    private float _timeCount = 0, _startTimePress = 0;
+    private Vector3 _startPosition;
 
     void Update()
     {
@@ -18,20 +20,147 @@ public class DragDropController : MonoBehaviour
             _timeCount = 0;
             GameManager.Instance.OnCheckAndShake();
         }
+        if (_isCompletingPress) return;
+        if (_hasPress && Input.GetMouseButtonDown(0))
+        {
+            _isCompletingPress = true;
+            ShoeSlot slot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
+            if (slot != null)
+            {
+                if (!slot.HasShoe)
+                {
+                    if (slot.GetInstanceID() != _cachedSlot.GetInstanceID())
+                    {
+                        _cachedSlot?.OnHideShoe();
+                        _cachedSlot = slot;
+
+                        _imageShoe.transform.DOKill();
+                        _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject);
+                        _imageShoe.transform.DOMove(_cachedSlot.transform.position, 0.2f)
+                            .SetLink(_imageShoe.gameObject)
+                            .OnComplete(() =>
+                            {
+                                if (_imageShoe != null && _cachedSlot != null && _currentSlot != null)
+                                {
+                                    _imageShoe.gameObject.SetActive(false);
+                                    _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
+                                    _cachedSlot.OnActive(true);
+                                    _cachedSlot.OnCheckMerge();
+                                    _currentSlot.OnPrepareShelf();
+                                }
+                                _cachedSlot = null;
+                                _currentSlot = null;
+                                _isCompletingPress = false;
+                            });
+                    }
+                    else
+                    {
+                        _imageShoe.transform.DOKill();
+                        _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject).OnComplete(() =>
+                        {
+                            _imageShoe.gameObject.SetActive(false);
+                            _currentSlot.OnActive(true);
+                            _isCompletingPress = false;
+                            _currentSlot = null;
+                            _cachedSlot = null;
+                        });
+                    }
+                }
+                else
+                {
+                    ShoeSlot availableSlot = slot.GetSlotNull;
+                    if (availableSlot != null)
+                    {
+                        _cachedSlot?.OnHideShoe();
+                        _cachedSlot = availableSlot;
+
+                        _imageShoe.transform.DOKill();
+                        _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject);
+                        _imageShoe.transform.DOMove(_cachedSlot.transform.position, 0.2f)
+                            .SetLink(_imageShoe.gameObject)
+                            .OnComplete(() =>
+                            {
+                                if (_imageShoe != null && _cachedSlot != null && _currentSlot != null)
+                                {
+                                    _imageShoe.gameObject.SetActive(false);
+                                    _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
+                                    _cachedSlot.OnActive(true);
+                                    _cachedSlot.OnCheckMerge();
+                                    _currentSlot.OnPrepareShelf();
+                                }
+                                _cachedSlot = null;
+                                _currentSlot = null;
+                                _isCompletingPress = false;
+                            });
+                    }
+                }
+
+            }
+            else
+            {
+                _imageShoe.transform.DOKill();
+                _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject).OnComplete(() =>
+                {
+                    _imageShoe.gameObject.SetActive(false);
+                    _currentSlot.OnActive(true);
+                    _isCompletingPress = false;
+                    _currentSlot = null;
+                    _cachedSlot = null;
+                });
+            }
+            _hasPress = false;
+            return; // Dừng Update ngay tại đây để không chạy nhầm vào Drag!
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
-            if (_hasDrag || _isCompletingDrag)
-                return;
-            _currentSlot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
-            if (_currentSlot != null && _currentSlot.HasShoe)
+            if (!_hasDrag && !_hasPress && !_isCompletingDrag)
             {
-                _hasDrag = true;
-                _cachedSlot = _currentSlot;
-                _imageShoe.gameObject.SetActive(true);
-                _imageShoe.sprite = _currentSlot.ShoeSprite;
-                _imageShoe.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                _currentSlot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
+                if (_currentSlot != null && _currentSlot.HasShoe)
+                {
+                    GameManager.Instance.StartTimer();
+                    
+                    _startPosition = Input.mousePosition;
+                    _startTimePress = Time.time;
+                    // _hasDrag = true;
+                    _cachedSlot = _currentSlot;
+                    _imageShoe.gameObject.SetActive(true);
+                    _imageShoe.sprite = _currentSlot.ShoeSprite;
+                    Vector3 worldPos = _currentSlot.transform.position;
+                    // worldPos.z = 0;
+                    _imageShoe.transform.position = worldPos;
+                    _imageShoe.DOKill();
+                    _imageShoe.transform.DOScale(1.3f, 0.15f).SetLink(_imageShoe.gameObject);
 
-                _currentSlot.OnHideShoe();
+                    _lineShoe.sprite = Resources.LoadAll<Sprite>("Line Shoe").FirstOrDefault(s => s.name == "Line " + _imageShoe.sprite.name);
+                    if (_lineShoe.sprite == null)
+                    {
+                        Debug.Log("Line not found");
+                    }
+                    _currentSlot.OnHideShoe();
+
+                    return;
+                }
+            }
+        }
+        if (Input.GetMouseButton(0))
+        {
+            if (_cachedSlot != null && !_hasPress)
+            {
+                float distance = Vector3.Distance(_startPosition, Input.mousePosition);
+                float time = Time.time - _startTimePress;
+                if (distance > 10 || time > 0.4)
+                    _hasDrag = true;
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            // Nếu nhả chuột ra mà KHÔNG PHẢI Drag -> Đây đích thị là 1 cú chạm (Press)
+            if (!_hasDrag && _cachedSlot != null && !_hasPress)
+            {
+                _hasPress = true;
             }
         }
         if (_hasDrag)
@@ -72,50 +201,51 @@ public class DragDropController : MonoBehaviour
                 _cachedSlot?.OnHideShoe();
                 this.ClearCache();
             }
-        }
-        if (Input.GetMouseButtonUp(0) && _hasDrag)
-        {
-            _isCompletingDrag = true;
 
-            if (_cachedSlot != null)
+            if (Input.GetMouseButtonUp(0) && _hasDrag)
             {
-                _imageShoe.transform.DOKill();
+                _isCompletingDrag = true;
 
-                _imageShoe.transform.DOMove(_cachedSlot.transform.position, 0.2f)
-                    .SetLink(_imageShoe.gameObject)
-                    .OnComplete(() =>
-                    {
-                        if (_imageShoe != null && _cachedSlot != null && _currentSlot != null)
+                if (_cachedSlot != null)
+                {
+                    _imageShoe.transform.DOKill();
+                    _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject);
+                    _imageShoe.transform.DOMove(_cachedSlot.transform.position, 0.2f)
+                        .SetLink(_imageShoe.gameObject)
+                        .OnComplete(() =>
                         {
-                            _imageShoe.gameObject.SetActive(false);
-                            _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
-                            _cachedSlot.OnActive(true);
-                            _cachedSlot.OnCheckMerge();
-                            _currentSlot.OnPrepareShelf();
-                        }
-                        _cachedSlot = null;
-                        _currentSlot = null;
-                        _isCompletingDrag = false;
-                    });
-            }
-            else
-            {
-                _imageShoe.transform.DOKill();
-
-                _imageShoe.transform.DOMove(_currentSlot.transform.position, 0.2f)
-                    .SetLink(_imageShoe.gameObject)
-                    .OnComplete(() =>
-                    {
-                        if (_imageShoe != null && _currentSlot != null)
+                            if (_imageShoe != null && _cachedSlot != null && _currentSlot != null)
+                            {
+                                _imageShoe.gameObject.SetActive(false);
+                                _cachedSlot.OnSetSlot(_currentSlot.ShoeSprite);
+                                _cachedSlot.OnActive(true);
+                                _cachedSlot.OnCheckMerge();
+                                _currentSlot.OnPrepareShelf();
+                            }
+                            _cachedSlot = null;
+                            _currentSlot = null;
+                            _isCompletingDrag = false;
+                        });
+                }
+                else
+                {
+                    _imageShoe.transform.DOKill();
+                    _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject);
+                    _imageShoe.transform.DOMove(_currentSlot.transform.position, 0.2f)
+                        .SetLink(_imageShoe.gameObject)
+                        .OnComplete(() =>
                         {
-                            _imageShoe.gameObject.SetActive(false);
-                            _currentSlot.OnActive(true);
-                        }
-                        _isCompletingDrag = false;
-                    });
-            }
+                            if (_imageShoe != null && _currentSlot != null)
+                            {
+                                _imageShoe.gameObject.SetActive(false);
+                                _currentSlot.OnActive(true);
+                            }
+                            _isCompletingDrag = false;
+                        });
+                }
 
-            _hasDrag = false;
+                _hasDrag = false;
+            }
         }
     }
 
