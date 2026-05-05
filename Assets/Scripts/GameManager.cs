@@ -27,6 +27,7 @@ public class GameManager : Singleton<GameManager>
     void Start()
     {
         // PlayerPrefs.SetInt(LEVEL_KEY, 1);
+        Application.targetFrameRate = 60;
         _dragAndDrop.enabled = false;
         //UiManager.Instance.ShowMenu();
         this.SetLevelTextHome();
