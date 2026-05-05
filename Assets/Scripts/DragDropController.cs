@@ -20,7 +20,7 @@ public class DragDropController : MonoBehaviour
             _timeCount = 0;
             GameManager.Instance.OnCheckAndShake();
         }
-        if (_isCompletingPress) return;
+        if (_isCompletingPress || _isCompletingDrag) return;
         if (_hasPress && Input.GetMouseButtonDown(0))
         {
             _isCompletingPress = true;
@@ -114,7 +114,7 @@ public class DragDropController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (!_hasDrag && !_hasPress && !_isCompletingDrag)
+            if (!_hasDrag && !_hasPress)
             {
                 _currentSlot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
                 if (_currentSlot != null && _currentSlot.HasShoe)

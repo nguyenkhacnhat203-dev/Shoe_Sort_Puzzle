@@ -21,7 +21,7 @@ public class GameManager : Singleton<GameManager>
     private List<ShoeBox> _listBox;
     private float _avgShelf;
     private List<Sprite> _totalSpriteShoe;
-    private bool isWin = false;
+    private bool _isWin = false;
     private bool _isTimerStarted = false;
 
     void Start()
@@ -36,14 +36,16 @@ public class GameManager : Singleton<GameManager>
     {
         UiManager.Instance.ShowGame();
         UiManager.Instance.popup_Next.SetActive(false);
-        
+
         this.ClearChildren(_gridBox);
         this.LoadLevel();
         this.SetLevelTextGame();
         this.OnInitLevel();
+        _gridBox.GetComponent<GridArranger>().OnTransformChildrenChanged();
         _dragAndDrop.enabled = true;
 
         _isTimerStarted = false;
+        _isWin = false;
         int minutes = _timeCountdown / 60;
         int second = _timeCountdown % 60;
         _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
@@ -152,7 +154,7 @@ public class GameManager : Singleton<GameManager>
         int remaining = seconds;
         while (remaining > 0)
         {
-            if (isWin)
+            if (_isWin)
                 yield break;
             int minutes = remaining / 60;
             int second = remaining % 60;
@@ -226,7 +228,7 @@ public class GameManager : Singleton<GameManager>
 
     public IEnumerator OnWin()
     {
-        isWin = true;
+        _isWin = true;
         yield return new WaitForSeconds(1f);
         // this.ClearChildren(_gridBox);
         int nextLevel = PlayerPrefs.GetInt(LEVEL_KEY, 1) + 1;
@@ -410,6 +412,7 @@ public class GameManager : Singleton<GameManager>
         GameObject obj = Instantiate(_prefabBox, _gridBox);
         ShoeBox box = obj.GetComponent<ShoeBox>();
         _listBox.Add(box);
+        _gridBox.GetComponent<GridArranger>().OnTransformChildrenChanged();
     }
     #endregion
 }
