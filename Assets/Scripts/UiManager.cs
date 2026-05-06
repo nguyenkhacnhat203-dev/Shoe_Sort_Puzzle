@@ -26,6 +26,12 @@ public class UiManager : Singleton<UiManager>
     private void Start()
     {
         Application.targetFrameRate = 60;
+        Button[] allButtons = this.GetComponentsInChildren<Button>(true);
+        foreach (Button btn in allButtons)
+        {
+            btn.onClick.RemoveListener(AudioManager.Instance.BtnClick);
+            btn.onClick.AddListener(AudioManager.Instance.BtnClick);
+        }
     }
 
 

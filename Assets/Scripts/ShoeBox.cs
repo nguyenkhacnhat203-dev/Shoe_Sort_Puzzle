@@ -20,6 +20,7 @@ public class ShoeBox : MonoBehaviour
     {
         _totalSlots = Utils.GetComponentChildren<ShoeSlot>(_slotContainer);
         _shelf = GetComponentInChildren<ShoeShelf>();
+        _shelf.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -51,7 +52,10 @@ public class ShoeBox : MonoBehaviour
             if (listShoe.Count == 0)
                 break;
             remainShoe.Add(new List<Sprite>());
-            int n = Random.Range(0, listShoe.Count);
+            int shoeIndex = remainShoe[i].Count-1;
+            rerand: int n = Random.Range(0, listShoe.Count);
+            if(shoeIndex>=0)
+                if(remainShoe[i][shoeIndex].Equals(listShoe[n])) goto rerand;
             remainShoe[i].Add(listShoe[n]);
             listShoe.RemoveAt(n);
         }
@@ -104,6 +108,7 @@ public class ShoeBox : MonoBehaviour
                 {
                     this.OnPrepareShelf();
                 });
+                AudioManager.Instance.Match();
                 GameManager.Instance.OnMinusShoe();
             }
         }

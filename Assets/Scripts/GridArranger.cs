@@ -62,6 +62,12 @@ public class GridArranger : MonoBehaviour
         }
     }
 
+    public void OnTransformChildrenChanged()
+    {
+        GetAllItems();
+        Arrange();
+    }
+
 
 #if UNITY_EDITOR
     void Update()

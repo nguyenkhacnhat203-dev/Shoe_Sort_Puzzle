@@ -31,12 +31,13 @@ public class ShoeShelf : MonoBehaviour
 
     public void SetShoeList(List<List<Sprite>> shoes)
     {
+        this.gameObject.SetActive(true);
         _shoeList = shoes;
     }
 
     public void OnPrepareShelf()
     {
-        if (this.CheckEmpty())
+        if (this.CheckEmpty() && this.gameObject.activeInHierarchy)
             _currentList++;
         else
             return;
