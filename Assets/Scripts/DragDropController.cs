@@ -23,6 +23,7 @@ public class DragDropController : MonoBehaviour
         if (_isCompletingPress || _isCompletingDrag) return;
         if (_hasPress && Input.GetMouseButtonDown(0))
         {
+            AudioManager.Instance.Move();
             _isCompletingPress = true;
             ShoeSlot slot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
             if (slot != null)
@@ -114,6 +115,7 @@ public class DragDropController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            AudioManager.Instance.Move();
             if (!_hasDrag && !_hasPress)
             {
                 _currentSlot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
@@ -204,6 +206,7 @@ public class DragDropController : MonoBehaviour
 
             if (Input.GetMouseButtonUp(0) && _hasDrag)
             {
+                AudioManager.Instance.Move();
                 _isCompletingDrag = true;
 
                 if (_cachedSlot != null)

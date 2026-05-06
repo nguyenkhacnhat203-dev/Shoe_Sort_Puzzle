@@ -47,6 +47,7 @@ public class AudioManager : Singleton<AudioManager>
     public void Match() => PlaySoundEffect(1);
     public void GameWin() => PlaySoundEffect(2);
     public void GameOver() => PlaySoundEffect(3);
+    public void Move() => PlaySoundEffect(4);
 
     #endregion
     #region Volume Control
