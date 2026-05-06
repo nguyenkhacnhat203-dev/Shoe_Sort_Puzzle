@@ -33,10 +33,10 @@ public class DragDropController : MonoBehaviour
         if (_hasPress && Input.GetMouseButtonDown(0))
         {
             AudioManager.Instance.Move();
+            _isCompletingPress = true;
             ShoeSlot slot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
             if (slot != null)
             {
-            _isCompletingPress = true;
                 if (!slot.HasShoe)
                 {
                     if (slot.GetInstanceID() != _cachedSlot.GetInstanceID())
@@ -108,7 +108,6 @@ public class DragDropController : MonoBehaviour
             }
             else
             {
-            _isCompletingPress = true;
                 _imageShoe.transform.DOKill();
                 _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject).OnComplete(() =>
                 {
@@ -125,6 +124,7 @@ public class DragDropController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            AudioManager.Instance.Move();
             if (!_hasDrag && !_hasPress)
             {
                 _currentSlot = Utils.GetRayCastWorld2D<ShoeSlot>(Input.mousePosition);
@@ -132,7 +132,6 @@ public class DragDropController : MonoBehaviour
                 {
                     GameManager.Instance.StartTimer();
                     
-            AudioManager.Instance.Move();
                     _startPosition = Input.mousePosition;
                     _startTimePress = Time.time;
                     // _hasDrag = true;
@@ -216,11 +215,11 @@ public class DragDropController : MonoBehaviour
 
             if (Input.GetMouseButtonUp(0) && _hasDrag)
             {
+                AudioManager.Instance.Move();
                 _isCompletingDrag = true;
 
                 if (_cachedSlot != null)
                 {
-                AudioManager.Instance.Move();
                     _imageShoe.transform.DOKill();
                     _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject);
                     _imageShoe.transform.DOMove(_cachedSlot.transform.position, 0.2f)
@@ -242,7 +241,6 @@ public class DragDropController : MonoBehaviour
                 }
                 else
                 {
-                AudioManager.Instance.Move();
                     _imageShoe.transform.DOKill();
                     _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject);
                     _imageShoe.transform.DOMove(_currentSlot.transform.position, 0.2f)
