@@ -4,6 +4,8 @@ using System.Linq;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -27,7 +29,6 @@ public class GameManager : Singleton<GameManager>
     void Start()
     {
         // PlayerPrefs.SetInt(LEVEL_KEY, 1);
-        Application.targetFrameRate = 60;
         _dragAndDrop.enabled = false;
         //UiManager.Instance.ShowMenu();
         this.SetLevelTextHome();
@@ -50,6 +51,8 @@ public class GameManager : Singleton<GameManager>
         int minutes = _timeCountdown / 60;
         int second = _timeCountdown % 60;
         _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
+
+        AudioManager.Instance.PlayBackgroundMusic();
     }
 
     public void StartTimer()
@@ -169,10 +172,9 @@ public class GameManager : Singleton<GameManager>
 
     private void OnTimeFinish()
     {
-        if (_totalBox > 0)
+        if (_totalShoe > 0)
         {
-            Debug.Log("Lose");
-            StartCoroutine(OnLose());
+            OnLose();
         }
     }
 
@@ -232,6 +234,7 @@ public class GameManager : Singleton<GameManager>
         _isWin = true;
         yield return new WaitForSeconds(1f);
         // this.ClearChildren(_gridBox);
+        AudioManager.Instance.GameWin();
         int nextLevel = PlayerPrefs.GetInt(LEVEL_KEY, 1) + 1;
         PlayerPrefs.SetInt(LEVEL_KEY, nextLevel);
         this.SetLevelTextHome();
@@ -240,10 +243,12 @@ public class GameManager : Singleton<GameManager>
         //UiManager.Instance.ShowMenu();
     }
 
-    public IEnumerator OnLose()
+    public void OnLose()
     {
-        yield return new WaitForSeconds(0.5f);
+        Debug.Log("Lose");
         _dragAndDrop.enabled = false;
+        AudioManager.Instance.backgroundMusicSource.Pause();
+        AudioManager.Instance.GameOver();
         //UiManager.Instance.ShowMenu();
     }
 

@@ -73,12 +73,10 @@ public static class Utils
         for (int i = 0; i < n; i++)
         {
             int randIndex = Random.Range(0, source.Count);
-            // Nếu phần tử vừa lấy trùng với phần tử trước đó, thử lấy lại tối đa 5 lần
-            int retry = 0;
-            while (i != 0 && result[i - 1].Equals(source[randIndex]) && retry < 5 && source.Count > 1)
+            
+            while (i != 0 && result[i - 1].Equals(source[randIndex]) && source.Count > 1)
             {
                 randIndex = Random.Range(0, source.Count);
-                retry++;
             }
 
             result.Add(source[randIndex]);
