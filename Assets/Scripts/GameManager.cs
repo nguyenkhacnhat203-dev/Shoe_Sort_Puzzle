@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
@@ -23,7 +23,18 @@ public class GameManager : Singleton<GameManager>
     private List<Sprite> _totalSpriteShoe;
     private bool isWin = false;
     private bool _isTimerStarted = false;
+    [SerializeField] private GameState currentState;
+    public GameState CurrentState => currentState;
+    public static event System.Action<GameState> OnGameStateChanged;
 
+    public enum GameState
+    {
+        Playing,
+        Pause,
+        GameOver,
+        Win,
+        UseBooster
+    }
     void Start()
     {
         // PlayerPrefs.SetInt(LEVEL_KEY, 1);
@@ -32,10 +43,41 @@ public class GameManager : Singleton<GameManager>
         this.SetLevelTextHome();
     }
 
+
+    public void ChangeState(GameState newState)
+    {
+        if (currentState == newState) return;
+
+        currentState = newState;
+
+        switch (newState)
+        {
+            case GameState.Playing:
+            case GameState.UseBooster:
+                Time.timeScale = 1f;
+                break;
+
+            case GameState.Pause:
+            case GameState.GameOver:
+            case GameState.Win:
+                Time.timeScale = 0f;
+                break;
+        }
+
+        OnGameStateChanged?.Invoke(newState);
+    }
+
+
+    public void PauseGame() => ChangeState(GameState.Pause);
+    public void ResumeGame() => ChangeState(GameState.Playing);
+    public void SetGameOver() => ChangeState(GameState.GameOver);
+    public void SetWin() => ChangeState(GameState.Win);
+    public void SetUseBooster() => ChangeState(GameState.UseBooster);
+
+
     public void OnPlay()
     {
         UiManager.Instance.ShowGame();
-        UiManager.Instance.popup_Next.SetActive(false);
         
         this.ClearChildren(_gridBox);
         this.LoadLevel();

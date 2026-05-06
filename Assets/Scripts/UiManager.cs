@@ -78,5 +78,14 @@ public class UiManager : Singleton<UiManager>
   
     public void ShowPopup_Settings() => CreatePopup(popup_Settings);
 
+    public void ShowPopup_Next(string state)
+    {
+        GameObject obj = CreatePopup(popup_Next);
 
+        Popup_Next popup = obj.GetComponent<Popup_Next>();
+        if (popup != null)
+        {
+            popup.action = state;
+        }
+    }
 }

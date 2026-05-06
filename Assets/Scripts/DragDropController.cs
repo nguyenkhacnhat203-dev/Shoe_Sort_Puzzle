@@ -131,7 +131,7 @@ public class DragDropController : MonoBehaviour
                     // worldPos.z = 0;
                     _imageShoe.transform.position = worldPos;
                     _imageShoe.DOKill();
-                    _imageShoe.transform.DOScale(1.3f, 0.15f).SetLink(_imageShoe.gameObject);
+                    _imageShoe.transform.DOScale(1.4f, 0.15f).SetLink(_imageShoe.gameObject);
 
                     _lineShoe.sprite = Resources.LoadAll<Sprite>("Line Shoe").FirstOrDefault(s => s.name == "Line " + _imageShoe.sprite.name);
                     if (_lineShoe.sprite == null)
