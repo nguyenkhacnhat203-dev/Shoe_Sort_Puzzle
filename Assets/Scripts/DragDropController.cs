@@ -12,15 +12,6 @@ public class DragDropController : MonoBehaviour
     private float _timeCount = 0, _startTimePress = 0;
     private Vector3 _startPosition;
 
-    public void Reset()
-    {
-        _imageShoe.gameObject.SetActive(false);
-        _hasDrag = _hasPress = _isCompletingDrag = _isCompletingPress = false;
-        _currentSlot = _cachedSlot = null;
-        _timeCount = _startTimePress = 0;
-        _startPosition = Vector3.zero;
-    }
-
     void Update()
     {
         _timeCount += Time.deltaTime;

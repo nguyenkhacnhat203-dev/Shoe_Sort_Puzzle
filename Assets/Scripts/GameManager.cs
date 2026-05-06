@@ -15,7 +15,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private Transform _gridBox;
     [SerializeField] private List<SpriteRenderer> _magnetList;
     [SerializeField] private RectTransform _magnetTarget;
-    [SerializeField] private TextMeshProUGUI _textTime, _textLevelHome, _textLevelGame, _textWinLose;
+    [SerializeField] private TextMeshProUGUI _textTime, _textLevelHome, _textLevelGame;
     [SerializeField] private DragDropController _dragAndDrop;
 
     private int _totalShoe, _totalShoeModel, _totalBox, _timeCountdown;
@@ -92,7 +92,6 @@ public class GameManager : Singleton<GameManager>
         this.OnInitLevel();
         _gridBox.GetComponent<GridArranger>().OnTransformChildrenChanged();
         _dragAndDrop.enabled = true;
-        _dragAndDrop.Reset();
 
         _isTimerStarted = false;
         _isWin = false;
@@ -131,14 +130,6 @@ public class GameManager : Singleton<GameManager>
     {
         int level = PlayerPrefs.GetInt(LEVEL_KEY, 1);
         _textLevelGame.SetText("Level " + level);
-    }
-
-    void SetTextWinLose()
-    {
-        if (_isWin)
-            _textWinLose.text = "Nex Level";
-        else
-            _textWinLose.text = "Retry";
     }
 
     private void ReadJsonLv(string lvText)
@@ -296,7 +287,6 @@ public class GameManager : Singleton<GameManager>
         this.SetLevelTextHome();
         _dragAndDrop.enabled = false;
         UiManager.Instance.popup_Next.SetActive(true);
-        this.SetTextWinLose();
         //UiManager.Instance.ShowMenu();
     }
 
@@ -304,8 +294,6 @@ public class GameManager : Singleton<GameManager>
     {
         Debug.Log("Lose");
         _dragAndDrop.enabled = false;
-        UiManager.Instance.popup_Next.SetActive(true);
-        this.SetTextWinLose();
         AudioManager.Instance.backgroundMusicSource.Pause();
         AudioManager.Instance.GameOver();
         //UiManager.Instance.ShowMenu();
