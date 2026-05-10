@@ -150,7 +150,7 @@ Material:
     - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
     - _GlowColor: {r: 0, g: 1, b: 0, a: 0.5}
     - _MaskCoord: {r: 0, g: 0, b: 32767, a: 32767}
-    - _OutlineColor: {r: 0.036608644, g: 0.37254903, b: 0.003921563, a: 1}
+    - _OutlineColor: {r: 0.5019608, g: 0.2, b: 0, a: 1}
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
@@ -166,11 +166,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: BALOO-REGULAR SDF 4
+  m_Name: BALOO-REGULAR SDF 16
   m_EditorClassIdentifier: 
-  hashCode: -1393816867
+  hashCode: 1248683501
   material: {fileID: -1301785742879483132}
-  materialHashCode: 1532620253
+  materialHashCode: -1454681555
   m_Version: 1.1.0
   m_SourceFontFileGUID: 67f0ac6074b6b45149598fc35aa8847d
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 67f0ac6074b6b45149598fc35aa8847d, type: 3}
@@ -1324,6 +1324,21 @@ MonoBehaviour:
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
+  - m_Index: 171
+    m_Metrics:
+      m_Width: 43.90625
+      m_Height: 68.390625
+      m_HorizontalBearingX: 2.796875
+      m_HorizontalBearingY: 66.953125
+      m_HorizontalAdvance: 49.5
+    m_GlyphRect:
+      m_X: 74
+      m_Y: 638
+      m_Width: 45
+      m_Height: 69
+    m_Scale: 1
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
   - m_Index: 180
     m_Metrics:
       m_Width: 47.15625
@@ -1591,21 +1606,6 @@ MonoBehaviour:
       m_Y: 242
       m_Width: 66
       m_Height: 33
-    m_Scale: 1
-    m_AtlasIndex: 0
-    m_ClassDefinitionType: 0
-  - m_Index: 171
-    m_Metrics:
-      m_Width: 43.90625
-      m_Height: 68.390625
-      m_HorizontalBearingX: 2.796875
-      m_HorizontalBearingY: 66.953125
-      m_HorizontalAdvance: 49.5
-    m_GlyphRect:
-      m_X: 74
-      m_Y: 638
-      m_Width: 45
-      m_Height: 69
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
@@ -1911,6 +1911,10 @@ MonoBehaviour:
     m_GlyphIndex: 165
     m_Scale: 1
   - m_ElementType: 1
+    m_Unicode: 233
+    m_GlyphIndex: 171
+    m_Scale: 1
+  - m_ElementType: 1
     m_Unicode: 242
     m_GlyphIndex: 180
     m_Scale: 1
@@ -1981,10 +1985,6 @@ MonoBehaviour:
   - m_ElementType: 1
     m_Unicode: 8734
     m_GlyphIndex: 600
-    m_Scale: 1
-  - m_ElementType: 1
-    m_Unicode: 233
-    m_GlyphIndex: 171
     m_Scale: 1
   m_AtlasTextures:
   - {fileID: -5432587406397773002}

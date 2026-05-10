@@ -44,9 +44,9 @@ public abstract class PopupBase : MonoBehaviour
         {
             Main.transform.localScale = Vector3.zero;
 
-            Main.transform.DOScale(new Vector3(1.25f, 1.25f, 1.25f), 0.35f).SetUpdate(true).OnComplete(() =>
+            Main.transform.DOScale(new Vector3(1.25f, 1.25f, 1.25f), 0.25f).SetUpdate(true).OnComplete(() =>
             {
-                Main.transform.DOScale(Vector3.one, 0.25f).SetUpdate(true);
+                Main.transform.DOScale(Vector3.one, 0.15f).SetUpdate(true);
             });
         }
     }
@@ -66,9 +66,9 @@ public abstract class PopupBase : MonoBehaviour
             return;
         }
 
-        Main.transform.DOScale(new Vector3(1.25f, 1.25f, 1.25f), 0.25f).OnComplete(() =>
+        Main.transform.DOScale(new Vector3(1.25f, 1.25f, 1.25f), 0.15f).OnComplete(() =>
         {
-            Main.transform.DOScale(Vector3.zero, 0.25f).OnComplete(() =>
+            Main.transform.DOScale(Vector3.zero, 0.15f).OnComplete(() =>
             {
                 Destroy(gameObject);
 

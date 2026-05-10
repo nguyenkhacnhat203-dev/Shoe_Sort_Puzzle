@@ -1234,7 +1234,7 @@ GameObject:
   - component: {fileID: 5884988662870402284}
   - component: {fileID: 5006338593726390445}
   m_Layer: 5
-  m_Name: Comeingsoon
+  m_Name: text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1289,8 +1289,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Home
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ed6660ef60e70af4590f95d83be7e37b, type: 2}
-  m_sharedMaterial: {fileID: -3584521928432194961, guid: ed6660ef60e70af4590f95d83be7e37b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7aefe94febd452447b9bbdb77d6852a2, type: 2}
+  m_sharedMaterial: {fileID: -1301785742879483132, guid: 7aefe94febd452447b9bbdb77d6852a2, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1314,8 +1314,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 55
-  m_fontSizeBase: 55
+  m_fontSize: 65
+  m_fontSizeBase: 65
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2090,7 +2090,7 @@ GameObject:
   - component: {fileID: 7578271445215490470}
   - component: {fileID: 1285395015623257327}
   m_Layer: 5
-  m_Name: Comeingsoon
+  m_Name: text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2170,8 +2170,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 55
-  m_fontSizeBase: 55
+  m_fontSize: 65
+  m_fontSizeBase: 65
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
