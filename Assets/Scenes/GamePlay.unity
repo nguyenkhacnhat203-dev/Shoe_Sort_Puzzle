@@ -2623,9 +2623,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dontDestroyOnLoad: 0
-  popup_Next: {fileID: 1909561643}
-  popup_Settings: {fileID: 0}
+  Popup_Win: {fileID: 6580576159227245125, guid: 8a36d61bd0f58db42a77bfde40c54ccd, type: 3}
+  Popup_Fail: {fileID: 8782333104508521255, guid: 6da38e8d2ae131a4d8eb30a6c86c9884, type: 3}
+  Popup_Setting_In_Game: {fileID: 1962075292526978823, guid: 0b844952445a5bd478b8e176a16e01d1, type: 3}
+  Popup_Setting_In_Menu: {fileID: 4022554071699003205, guid: f8c8cf2c1cc8599459afa0d2f6e83db2, type: 3}
   popupParent: {fileID: 727197119}
+  Bar: {fileID: 1228206510602452439}
   Game:
   - {fileID: 162064322}
   - {fileID: 1078593409}
@@ -4162,7 +4165,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1116711778}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 727197120}
+        m_TargetAssemblyTypeName: UiManager, Assembly-CSharp
+        m_MethodName: Show_Setting
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1116711778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6087,7 +6102,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.6567285, y: 0.10454855}
   m_AnchorMax: {x: 0.9738841, y: 0.45800003}
-  m_AnchoredPosition: {x: -0.009979248, y: -0.19000244}
+  m_AnchoredPosition: {x: -0.009979248, y: -0.18998718}
   m_SizeDelta: {x: -1.3300018, y: -1.0899963}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1554025693
@@ -7254,7 +7269,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.10454855}
   m_AnchorMax: {x: 0.5, y: 0.45800003}
-  m_AnchoredPosition: {x: 0.2000122, y: -0.19000244}
+  m_AnchoredPosition: {x: 0.2000122, y: -0.18998718}
   m_SizeDelta: {x: -0.3999939, y: -1.0899963}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1886321183
@@ -10422,7 +10437,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4760765818628159684}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 727197120}
+        m_TargetAssemblyTypeName: UiManager, Assembly-CSharp
+        m_MethodName: Show_Setting
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!224 &5322158613926513631
 RectTransform:
   m_ObjectHideFlags: 0

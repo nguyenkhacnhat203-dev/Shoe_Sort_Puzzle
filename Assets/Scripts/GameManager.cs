@@ -23,8 +23,15 @@ public class GameManager : Singleton<GameManager>
     private List<ShoeBox> _listBox;
     private float _avgShelf;
     private List<Sprite> _totalSpriteShoe;
-    private bool _isWin = false;
-    private bool _isTimerStarted = false;
+    private bool _isWin = false, _isPlaying = false, _isTimerStarted = false, _isPause = false;
+    private Coroutine _countdownCoroutine;
+
+    public bool IsPlaying => _isPlaying;
+    public bool IsPause => _isPause;
+    public void SetPause(bool isPause)
+    {
+        _isPause = isPause;
+    }
 
     void Start()
     {
@@ -36,8 +43,9 @@ public class GameManager : Singleton<GameManager>
 
     public void OnPlay()
     {
-        UiManager.Instance.ShowGame();
-        UiManager.Instance.popup_Next.SetActive(false);
+        _isPlaying = true;
+        UiManager.Instance.Show_Menu_Game(_isPlaying);
+        UiManager.Instance.Hide_Win_Lose();
 
         this.ClearChildren(_gridBox);
         this.LoadLevel();
@@ -56,12 +64,26 @@ public class GameManager : Singleton<GameManager>
         AudioManager.Instance.PlayBackgroundMusic();
     }
 
+    public void ResetGame()
+    {
+        _dragAndDrop.enabled = false;
+        _isTimerStarted = false;
+        _isWin = false;
+        _isPlaying = false;
+        this.ClearChildren(_gridBox);
+        if (_countdownCoroutine != null)
+        {
+            StopCoroutine(_countdownCoroutine);
+            _countdownCoroutine = null;
+        }
+    }
+
     public void StartTimer()
     {
         if (!_isTimerStarted)
         {
             _isTimerStarted = true;
-            StartCoroutine(StartCountdown(_timeCountdown));
+            _countdownCoroutine = StartCoroutine(StartCountdown(_timeCountdown));
         }
     }
 
@@ -165,6 +187,7 @@ public class GameManager : Singleton<GameManager>
     IEnumerator StartCountdown(int seconds)
     {
         int remaining = seconds;
+        Debug.Log("time");
         while (remaining > 0)
         {
             if (_isWin)
@@ -248,7 +271,7 @@ public class GameManager : Singleton<GameManager>
         PlayerPrefs.SetInt(LEVEL_KEY, nextLevel);
         this.SetLevelTextHome();
         _dragAndDrop.enabled = false;
-        UiManager.Instance.popup_Next.SetActive(true);
+        UiManager.Instance.Show_Win_Lose(_isWin);
         this.SetTextWinLose();
         //UiManager.Instance.ShowMenu();
     }
@@ -257,7 +280,7 @@ public class GameManager : Singleton<GameManager>
     {
         Debug.Log("Lose");
         _dragAndDrop.enabled = false;
-        UiManager.Instance.popup_Next.SetActive(true);
+        UiManager.Instance.Show_Win_Lose(_isWin);
         this.SetTextWinLose();
         AudioManager.Instance.backgroundMusicSource.Pause();
         AudioManager.Instance.GameOver();

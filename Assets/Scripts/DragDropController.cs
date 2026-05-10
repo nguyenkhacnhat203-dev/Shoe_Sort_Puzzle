@@ -103,6 +103,18 @@ public class DragDropController : MonoBehaviour
                                 _isCompletingPress = false;
                             });
                     }
+                    else
+                    {
+                        _imageShoe.transform.DOKill();
+                        _imageShoe.transform.DOScale(1, 0.2f).SetLink(_imageShoe.gameObject).OnComplete(() =>
+                        {
+                            _imageShoe.gameObject.SetActive(false);
+                            _currentSlot.OnActive(true);
+                            _isCompletingPress = false;
+                            _currentSlot = null;
+                            _cachedSlot = null;
+                        });
+                    }
                 }
 
             }

@@ -8,7 +8,7 @@ public class Bar : MonoBehaviour
     [Header("Shadow")]
     public RectTransform Shadow;
 
-  
+
     private float[] shadowTargetAnchorX = new float[] { 0.1f, 0.3f, 0.5f, 0.7f, 0.9f };
     private float currentShadowAnchorX;
 
@@ -54,6 +54,8 @@ public class Bar : MonoBehaviour
     private RectTransform[] allPanels;
     private RectTransform parentRect;
 
+    private const string MENU_FOCUS = "MENU_FOCUS";
+
 
     //private void OnEnable()
     //{
@@ -90,7 +92,7 @@ public class Bar : MonoBehaviour
     //    SnapToTargets();
     //}
 
-  
+
 
 
     private void Start()
@@ -181,6 +183,7 @@ public class Bar : MonoBehaviour
 
     public void ChangeFocus(int index)
     {
+        PlayerPrefs.SetInt(MENU_FOCUS, 2);
         for (int i = 0; i < weights.Length; i++)
         {
             bool isSelected = (i == index);

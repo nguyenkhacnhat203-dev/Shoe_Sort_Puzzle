@@ -43,4 +43,13 @@ public class AudioManager : Singleton<AudioManager>
     public void Move() => PlaySoundEffect(4);
 
     #endregion
+    public void AdjustBackgroundMusicVolume(float volume)
+    {
+        backgroundMusicSource.volume = volume;
+    }
+
+    public void AdjustSoundEffectsVolume(float volume)
+    {
+        soundEffectSource.volume = volume;
+    }
 }

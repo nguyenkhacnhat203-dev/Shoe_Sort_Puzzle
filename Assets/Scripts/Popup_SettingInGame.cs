@@ -16,14 +16,21 @@ public class Popup_SettingInGame : PopupBase
     public Button btnVibrationOn;
     public Button btnVibrationOff;
 
+    [Header("Game")]
+    public Button btnPlay;
+    public Button btnHome;
+
     private bool isMusicOn = true;
     private bool isSoundOn = true;
     private bool isVibrationOn = true;
 
+    private const string SOUND = "Sound";
+    private const string MUSIC = "Music";
+    private const string VIBRATE = "Vibrate";
+
     protected override void Start()
     {
         base.Start();
-
 
         btnMusicOn.onClick.AddListener(ClickMusicOn);
         btnMusicOff.onClick.AddListener(ClickMusicOff);
@@ -34,49 +41,97 @@ public class Popup_SettingInGame : PopupBase
         btnVibrationOn.onClick.AddListener(ClickVibrationOn);
         btnVibrationOff.onClick.AddListener(ClickVibrationOff);
 
+        btnPlay.onClick.AddListener(this.OnPlay);
+        btnHome.onClick.AddListener(this.ReturnHome);
+
+        LoadSetting();
         UpdateUI();
     }
 
-
     void ClickMusicOn()
     {
-        isMusicOn = false;
+        ToggleMusic();
         UpdateUI();
     }
 
     void ClickMusicOff()
     {
-        isMusicOn = true;
+        ToggleMusic();
         UpdateUI();
     }
 
 
     void ClickSoundOn()
     {
-        isSoundOn = false;
+        ToggleSound();
         UpdateUI();
     }
 
     void ClickSoundOff()
     {
-        isSoundOn = true;
+        ToggleSound();
         UpdateUI();
     }
 
 
     void ClickVibrationOn()
     {
-        isVibrationOn = false;
+        ToggleVibrate();
         UpdateUI();
     }
 
     void ClickVibrationOff()
     {
-        isVibrationOn = true;
+        ToggleVibrate();
         UpdateUI();
     }
 
+    #region BUTTON EVENTS
+    public void ToggleSound()
+    {
+        AudioManager.Instance.BtnClick();
+        isSoundOn = !isSoundOn;
+        PlayerPrefs.SetInt("Sound", isSoundOn ? 1 : 0);
 
+        AudioManager.Instance.AdjustSoundEffectsVolume(isSoundOn ? 1f : 0f);
+        UpdateUI();
+    }
+
+    public void ToggleMusic()
+    {
+        AudioManager.Instance.BtnClick();
+
+        isMusicOn = !isMusicOn;
+        PlayerPrefs.SetInt("Music", isMusicOn ? 1 : 0);
+
+        AudioManager.Instance.AdjustBackgroundMusicVolume(isMusicOn ? 1f : 0f);
+        UpdateUI();
+    }
+
+    public void ToggleVibrate()
+    {
+        AudioManager.Instance.BtnClick();
+
+        isVibrationOn = !isVibrationOn;
+        PlayerPrefs.SetInt("Vibrate", isVibrationOn ? 1 : 0);
+
+#if UNITY_ANDROID || UNITY_IOS
+        if (isVibrateOn)
+            Handheld.Vibrate();
+#endif
+        UpdateUI();
+    }
+    #endregion
+    #region LOAD & UI
+    void LoadSetting()
+    {
+        isSoundOn = PlayerPrefs.GetInt("Sound", 1) == 1;
+        isMusicOn = PlayerPrefs.GetInt("Music", 1) == 1;
+        isVibrationOn = PlayerPrefs.GetInt("Vibrate", 1) == 1;
+
+        AudioManager.Instance.AdjustSoundEffectsVolume(isSoundOn ? 1f : 0f);
+        AudioManager.Instance.AdjustBackgroundMusicVolume(isMusicOn ? 1f : 0f);
+    }
     void UpdateUI()
     {
         btnMusicOn.gameObject.SetActive(isMusicOn);
@@ -89,4 +144,5 @@ public class Popup_SettingInGame : PopupBase
         btnVibrationOn.gameObject.SetActive(isVibrationOn);
         btnVibrationOff.gameObject.SetActive(!isVibrationOn);
     }
+    #endregion
 }

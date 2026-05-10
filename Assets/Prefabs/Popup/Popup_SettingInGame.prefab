@@ -653,6 +653,8 @@ MonoBehaviour:
   btnSoundOff: {fileID: 1863382031490674109}
   btnVibrationOn: {fileID: 4090958547963611743}
   btnVibrationOff: {fileID: 5418297531253701443}
+  btnPlay: {fileID: 4166915855945951669}
+  btnHome: {fileID: 1098358986422344170}
 --- !u!114 &4121898363009655721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3033,7 +3035,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 3096335282061764121}
         m_TargetAssemblyTypeName: PopupBase, Assembly-CSharp
         m_MethodName: DestroyPopup
         m_Mode: 1

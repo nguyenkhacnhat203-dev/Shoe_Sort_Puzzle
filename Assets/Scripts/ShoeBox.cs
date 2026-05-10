@@ -63,10 +63,35 @@ public class ShoeBox : MonoBehaviour
         while (listShoe.Count > 0)
         {
             var availableShelves = remainShoe.Where(s => s.Count < 3).ToList();
-            if (availableShelves.Count == 0) break; // Avoid infinite loop if no shelf has space
+            if (availableShelves.Count == 0) break; 
 
+            int loopCount = 0; 
+            
+            rerand: 
             int rans = Random.Range(0, availableShelves.Count);
             int n = Random.Range(0, listShoe.Count);
+            
+            // Chỉ chặn khi shelf đã có 2 chiếc và cả 2 chiếc đó đều giống chiếc chuẩn bị thêm vào
+            if (availableShelves[rans].Count == 2 && 
+                availableShelves[rans][0].Equals(listShoe[n]) && 
+                availableShelves[rans][1].Equals(listShoe[n]))
+            {
+                loopCount++;
+                if (loopCount < 30) 
+                {
+                    goto rerand;
+                }
+                else 
+                {
+                    List<Sprite> newShelfLayer = new List<Sprite>();
+                    newShelfLayer.Add(listShoe[n]);
+                    remainShoe.Add(newShelfLayer);
+                    listShoe.RemoveAt(n);
+                    
+                    continue; 
+                }
+            }
+
             availableShelves[rans].Add(listShoe[n]);
             listShoe.RemoveAt(n);
         }
