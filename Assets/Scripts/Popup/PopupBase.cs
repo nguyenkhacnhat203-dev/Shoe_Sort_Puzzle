@@ -25,6 +25,15 @@ public abstract class PopupBase : MonoBehaviour
     public virtual void OnPlay()
     {
         AudioManager.Instance.BtnClick();
+        if (ResourceManager.Instance.GetHeart() == 0)
+        {
+            UiManager.Instance.Show_Popup_Heart(() => {
+                GameManager.Instance.ResetGame();
+                GameManager.Instance.OnPlay();
+                this.DestroyPopup();
+            });
+            return;
+        }
         GameManager.Instance.ResetGame();
         GameManager.Instance.OnPlay();
         this.DestroyPopup();
@@ -33,7 +42,6 @@ public abstract class PopupBase : MonoBehaviour
     public virtual void ReturnHome()
     {
         AudioManager.Instance.BtnClick();
-        GameManager.Instance.ResetGame();
         UiManager.Instance.Return_Home();
         this.DestroyPopup();
     }
@@ -54,21 +62,16 @@ public abstract class PopupBase : MonoBehaviour
     public virtual void DestroyPopup()
     {
         AudioManager.Instance.BtnClick();
-        bool isPause = GameManager.Instance.IsPause;
-        if (isPause)
-        {
-            Time.timeScale = 1;
-            GameManager.Instance.SetPause(true);
-        }
+        GameManager.Instance.ChangeState(GameState.OnMenu);
         if (Main == null)
         {
             Destroy(gameObject);
             return;
         }
 
-        Main.transform.DOScale(new Vector3(1.25f, 1.25f, 1.25f), 0.15f).OnComplete(() =>
+        Main.transform.DOScale(new Vector3(1.25f, 1.25f, 1.25f), 0.15f).SetUpdate(true).OnComplete(() =>
         {
-            Main.transform.DOScale(Vector3.zero, 0.15f).OnComplete(() =>
+            Main.transform.DOScale(Vector3.zero, 0.15f).SetUpdate(true).OnComplete(() =>
             {
                 Destroy(gameObject);
 

@@ -315,6 +315,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 7835570297189582788}
+  txtCoin: {fileID: 2301263617373990238}
+  txtHeart: {fileID: 7056037408340183992}
   BossterMagnet: {fileID: 430018478342240531}
   BossterShuffle: {fileID: 4910214732805213521}
   BossterMoreBox: {fileID: 2241583245803963705}
@@ -336,7 +338,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &185086698974502489
 RectTransform:
   m_ObjectHideFlags: 0
@@ -857,7 +859,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6973662670866908403}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1567808209896090620}
+        m_TargetAssemblyTypeName: PopupBase, Assembly-CSharp
+        m_MethodName: DestroyPopup
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6801508363837807108
 GameObject:
   m_ObjectHideFlags: 0
@@ -1455,4 +1469,16 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8517775743574298603}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1567808209896090620}
+        m_TargetAssemblyTypeName: Popup_BuyBossterInGame, Assembly-CSharp
+        m_MethodName: BuyBooster
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

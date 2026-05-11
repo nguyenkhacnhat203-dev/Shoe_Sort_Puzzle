@@ -7,16 +7,20 @@ using UnityEngine.UI;
 
 public class ShoeShelf : MonoBehaviour
 {
+    #region Variables
     [SerializeField] private List<SpriteRenderer> _shoeSlots;
     [SerializeField] private List<List<Sprite>> _shoeList;
     [SerializeField] private SpriteRenderer _imgShelf;
+    private int _currentList = 0;
+    #endregion
 
+    #region Properties
     public List<SpriteRenderer> ShoeSlot => _shoeSlots;
     public List<List<Sprite>> ShoeList => _shoeList;
     public SpriteRenderer ImgShelf => _imgShelf;
+    #endregion
 
-    private int _currentList = 0;
-
+    #region Unity Lifecycle
     void Awake()
     {
         _shoeSlots = Utils.GetComponentChildren<SpriteRenderer>(this.transform);
@@ -28,7 +32,9 @@ public class ShoeShelf : MonoBehaviour
     {
         this.OnSetShoe(_shoeList[_currentList]);
     }
+    #endregion
 
+    #region Initialization & Logic
     public void SetShoeList(List<List<Sprite>> shoes)
     {
         this.gameObject.SetActive(true);
@@ -52,6 +58,7 @@ public class ShoeShelf : MonoBehaviour
         }
         OnSetShoe(_shoeList[_currentList]);
     }
+    
     public void OnSetShoe(List<Sprite> items)
     {
         if (items.Count <= _shoeSlots.Count)
@@ -64,7 +71,9 @@ public class ShoeShelf : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Helper Methods
     public SpriteRenderer RandomSlot()
     {
         var availableSlots = _shoeSlots.Where(s => !s.gameObject.activeInHierarchy).ToList();
@@ -81,4 +90,5 @@ public class ShoeShelf : MonoBehaviour
         }
         return true;
     }
+    #endregion
 }

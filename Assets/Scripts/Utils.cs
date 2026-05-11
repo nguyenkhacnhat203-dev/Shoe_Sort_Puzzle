@@ -73,11 +73,6 @@ public static class Utils
         for (int i = 0; i < n; i++)
         {
             int randIndex = Random.Range(0, source.Count);
-            
-            while (i != 0 && result[i - 1].Equals(source[randIndex]) && source.Count > 1)
-            {
-                randIndex = Random.Range(0, source.Count);
-            }
 
             result.Add(source[randIndex]);
             source.RemoveAt(randIndex);

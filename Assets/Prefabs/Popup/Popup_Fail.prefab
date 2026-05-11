@@ -1073,14 +1073,14 @@ GameObject:
   - component: {fileID: 2905155563370930889}
   - component: {fileID: 8300596485671474881}
   - component: {fileID: 6467560253366910227}
-  - component: {fileID: 6283974118682924755}
+  - component: {fileID: 3977487048725545059}
   m_Layer: 5
   m_Name: Popup_Fail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1318245592734518202
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1153,7 +1153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smallScale: 0.8
   bigScale: 0.85
---- !u!114 &6283974118682924755
+--- !u!114 &3977487048725545059
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1162,12 +1162,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8782333104508521255}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 629988cf3351eeb4f9b2d344b7cadb23, type: 3}
+  m_Script: {fileID: 11500000, guid: a0e24101c1eea6c49ba4135e5c496ad2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 0}
-  btnPlay: {fileID: 414746361809363850}
+  btnReplay: {fileID: 414746361809363850}
   btnHome: {fileID: 85243522694536913}
+  txtCoin: {fileID: 7348428956855579871}
+  txtHeart: {fileID: 4318896188880784622}
 --- !u!1 &9011570691459291994
 GameObject:
   m_ObjectHideFlags: 0

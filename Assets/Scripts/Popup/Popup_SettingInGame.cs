@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 public class Popup_SettingInGame : PopupBase
@@ -17,8 +18,9 @@ public class Popup_SettingInGame : PopupBase
     public Button btnVibrationOff;
 
     [Header("Game")]
-    public Button btnPlay;
+    public Button btnReplay;
     public Button btnHome;
+    public TextMeshProUGUI txtCoin, txtHeart;
 
     private bool isMusicOn = true;
     private bool isSoundOn = true;
@@ -41,12 +43,31 @@ public class Popup_SettingInGame : PopupBase
         btnVibrationOn.onClick.AddListener(ClickVibrationOn);
         btnVibrationOff.onClick.AddListener(ClickVibrationOff);
 
-        btnPlay.onClick.AddListener(this.OnPlay);
+        btnReplay.onClick.AddListener(this.OnReplay);
         btnHome.onClick.AddListener(this.ReturnHome);
+        txtCoin.text = ResourceManager.Instance.GetCoin().ToString();
+        txtHeart.text = ResourceManager.Instance.GetHeart().ToString();
 
         LoadSetting();
         UpdateUI();
     }
+
+    public void OnReplay()
+    {
+        ResourceManager.Instance.SetHeart(-1);
+        GameManager.Instance.ChangeState(GameState.OnGame);
+        base.OnPlay();
+    }
+
+
+    public override void ReturnHome()
+    {
+        AudioManager.Instance.BtnClick();
+        ResourceManager.Instance.SetHeart(-1);
+        UiManager.Instance.Return_Home();
+        base.DestroyPopup();
+    }
+
 
     void ClickMusicOn()
     {

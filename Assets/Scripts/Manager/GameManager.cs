@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,54 +10,96 @@ using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager>
 {
-
     [SerializeField] private int _lvId;
     [SerializeField] private GameObject _prefabBox;
     [SerializeField] private Transform _gridBox;
     [SerializeField] private List<SpriteRenderer> _magnetList;
     [SerializeField] private RectTransform _magnetTarget;
-    [SerializeField] private TextMeshProUGUI _textTime, _textLevelHome, _textLevelGame, _textWinLose;
+    [SerializeField] private TextMeshProUGUI _textTime, _textLevelHome, _textLevelGame;
     [SerializeField] private DragDropController _dragAndDrop;
 
+    private GameState _currentState;
     private int _totalShoe, _totalShoeModel, _totalBox, _timeCountdown;
-    private const string LEVEL_KEY = "CURRENT_LEVEL";
     private List<ShoeBox> _listBox;
     private float _avgShelf;
     private List<Sprite> _totalSpriteShoe;
-    private bool _isWin = false, _isPlaying = false, _isTimerStarted = false, _isPause = false;
+    private bool _isTimerStarted = false;
     private Coroutine _countdownCoroutine;
 
-    public bool IsPlaying => _isPlaying;
-    public bool IsPause => _isPause;
-    public void SetPause(bool isPause)
+    #region Properties & Events
+    public GameState CurrentState => _currentState;
+    public static event Action<GameState> OnGameStateChanged;
+    #endregion
+
+    #region Unity Lifecycle
+    protected override void Awake()
     {
-        _isPause = isPause;
+        base.Awake();
+        ResourceManager.Instance.InitResource();
     }
 
     void Start()
     {
-        // PlayerPrefs.SetInt(LEVEL_KEY, 1);
-        _dragAndDrop.enabled = false;
+        // PlayerPrefs.SetInt(GameKeys.LEVEL_KEY, 1);
         //UiManager.Instance.ShowMenu();
+        ChangeState(GameState.OnMenu);
         this.SetLevelTextHome();
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (_currentState == GameState.OnGame || _currentState == GameState.Pause)
+        {
+            ResourceManager.Instance.SetHeart(-1);
+            PlayerPrefs.Save();
+        }
+    }
+    #endregion
+
+    #region Game State Management
+
+    public void ChangeState(GameState newState)
+    {
+        if (_currentState == newState) return;
+
+        _currentState = newState;
+        switch (newState)
+        {
+            case GameState.OnMenu:
+            case GameState.OnGame:
+                Time.timeScale = 1f;
+                break;
+            case GameState.Pause:
+            case GameState.Lose:
+            case GameState.Win:
+                Time.timeScale = 0f;
+                break;
+        }
+
+        OnGameStateChanged?.Invoke(newState);
     }
 
     public void OnPlay()
     {
-        _isPlaying = true;
-        UiManager.Instance.Show_Menu_Game(_isPlaying);
-        UiManager.Instance.Hide_Win_Lose();
+        if (ResourceManager.Instance.GetHeart() == 0)
+        {
+            UiManager.Instance.Show_Popup_Heart(() =>
+            {
+                this.OnPlay();
+            });
+            return;
+        }
+        ChangeState(GameState.OnGame);
+        UiManager.Instance.Show_Menu_Game();
 
         this.ClearChildren(_gridBox);
         this.LoadLevel();
         this.SetLevelTextGame();
         this.OnInitLevel();
         _gridBox.GetComponent<GridArranger>().OnTransformChildrenChanged();
-        _dragAndDrop.enabled = true;
         _dragAndDrop.Reset();
 
         _isTimerStarted = false;
-        _isWin = false;
         int minutes = _timeCountdown / 60;
         int second = _timeCountdown % 60;
         _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
@@ -66,10 +109,7 @@ public class GameManager : Singleton<GameManager>
 
     public void ResetGame()
     {
-        _dragAndDrop.enabled = false;
         _isTimerStarted = false;
-        _isWin = false;
-        _isPlaying = false;
         this.ClearChildren(_gridBox);
         if (_countdownCoroutine != null)
         {
@@ -77,16 +117,9 @@ public class GameManager : Singleton<GameManager>
             _countdownCoroutine = null;
         }
     }
+    #endregion
 
-    public void StartTimer()
-    {
-        if (!_isTimerStarted)
-        {
-            _isTimerStarted = true;
-            _countdownCoroutine = StartCoroutine(StartCountdown(_timeCountdown));
-        }
-    }
-
+    #region Level Initialization
     private void ClearChildren(Transform parent)
     {
         for (int i = parent.childCount - 1; i >= 0; i--)
@@ -97,23 +130,18 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    void SetLevelTextHome()
+    private void LoadLevel()
     {
-        int level = PlayerPrefs.GetInt(LEVEL_KEY, 1);
-        _textLevelHome.SetText("LEVEL " + level);
-    }
-    void SetLevelTextGame()
-    {
-        int level = PlayerPrefs.GetInt(LEVEL_KEY, 1);
-        _textLevelGame.SetText("Level " + level);
-    }
-
-    void SetTextWinLose()
-    {
-        if (_isWin)
-            _textWinLose.text = "Nex Level";
+        int level = ResourceManager.Instance.GetLevel();
+        TextAsset jsonFile = Resources.Load<TextAsset>($"Levels/level{level}");
+        if (jsonFile != null)
+        {
+            ReadJsonLv(jsonFile.text);
+        }
         else
-            _textWinLose.text = "Retry";
+        {
+            Debug.LogError($"Level {level} not found!");
+        }
     }
 
     private void ReadJsonLv(string lvText)
@@ -124,20 +152,6 @@ public class GameManager : Singleton<GameManager>
         _totalShoe = levelData.totalShoe;
         _totalShoeModel = levelData.totalShoeModel;
         _timeCountdown = levelData.timeCountdown;
-    }
-
-    private void LoadLevel()
-    {
-        int level = PlayerPrefs.GetInt(LEVEL_KEY, 1);
-        TextAsset jsonFile = Resources.Load<TextAsset>($"Levels/level{level}");
-        if (jsonFile != null)
-        {
-            ReadJsonLv(jsonFile.text);
-        }
-        else
-        {
-            Debug.LogError($"Level {level} not found!");
-        }
     }
 
     private void OnInitLevel()
@@ -160,11 +174,11 @@ public class GameManager : Singleton<GameManager>
 
         for (int i = 0; i < useShoe.Count; i++)
         {
-            int rand = Random.Range(i, useShoe.Count);
+            int rand = UnityEngine.Random.Range(i, useShoe.Count);
             (useShoe[i], useShoe[rand]) = (useShoe[rand], useShoe[i]);
         }
 
-        _avgShelf = Random.Range(1.5f, 2f);
+        _avgShelf = UnityEngine.Random.Range(1.5f, 2f);
         int totalShelf = Mathf.RoundToInt(useShoe.Count / _avgShelf);
 
         List<int> shelfPerBox = this.DistributeEvelyn(_totalBox, totalShelf);
@@ -181,32 +195,6 @@ public class GameManager : Singleton<GameManager>
                 bool forceNotFull = (i == _totalBox - 1);
                 _listBox[i].OnInitBox(shelfPerBox[i], listShoe, forceNotFull);
             }
-        }
-    }
-
-    IEnumerator StartCountdown(int seconds)
-    {
-        int remaining = seconds;
-        Debug.Log("time");
-        while (remaining > 0)
-        {
-            if (_isWin)
-                yield break;
-            int minutes = remaining / 60;
-            int second = remaining % 60;
-            _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
-            yield return new WaitForSeconds(1);
-            remaining--;
-        }
-        _textTime.text = string.Format("{0:00}:{1:00}", 0, 0);
-        this.OnTimeFinish();
-    }
-
-    private void OnTimeFinish()
-    {
-        if (_totalShoe > 0)
-        {
-            OnLose();
         }
     }
 
@@ -244,13 +232,66 @@ public class GameManager : Singleton<GameManager>
 
         for (int i = 0; i < result.Count; i++)
         {
-            int rand = Random.Range(i, result.Count);
+            int rand = UnityEngine.Random.Range(i, result.Count);
             (result[i], result[rand]) = (result[rand], result[i]);
         }
 
         return result;
     }
+    #endregion
 
+    #region Timer
+    public void StartTimer()
+    {
+        if (!_isTimerStarted)
+        {
+            _isTimerStarted = true;
+            _countdownCoroutine = StartCoroutine(StartCountdown(_timeCountdown));
+        }
+    }
+
+    IEnumerator StartCountdown(int seconds)
+    {
+        int remaining = seconds;
+        Debug.Log("time");
+        while (remaining > 0)
+        {
+            if (_currentState == GameState.Win)
+                yield break;
+            int minutes = remaining / 60;
+            int second = remaining % 60;
+            _textTime.text = string.Format("{0:00}:{1:00}", minutes, second);
+            yield return new WaitForSeconds(1);
+            remaining--;
+        }
+        _textTime.text = string.Format("{0:00}:{1:00}", 0, 0);
+        this.OnTimeFinish();
+    }
+
+    private void OnTimeFinish()
+    {
+        if (_totalShoe > 0)
+        {
+            OnLose();
+        }
+    }
+    #endregion
+
+    #region UI Setup
+    void SetLevelTextHome()
+    {
+        int level = ResourceManager.Instance.GetLevel();
+        _textLevelHome.SetText("LEVEL " + level);
+    }
+
+    void SetLevelTextGame()
+    {
+        int level = ResourceManager.Instance.GetLevel();
+        _textLevelGame.SetText("Level " + level);
+    }
+    #endregion
+
+    #region Game Logic
     public void OnMinusShoe()
     {
         _totalShoe -= 3;
@@ -263,27 +304,25 @@ public class GameManager : Singleton<GameManager>
 
     public IEnumerator OnWin()
     {
-        _isWin = true;
         yield return new WaitForSeconds(1f);
         // this.ClearChildren(_gridBox);
         AudioManager.Instance.GameWin();
-        int nextLevel = PlayerPrefs.GetInt(LEVEL_KEY, 1) + 1;
-        PlayerPrefs.SetInt(LEVEL_KEY, nextLevel);
+        int nextLevel = ResourceManager.Instance.GetLevel() + 1;
+        ResourceManager.Instance.SetLevel(nextLevel);
         this.SetLevelTextHome();
-        _dragAndDrop.enabled = false;
-        UiManager.Instance.Show_Win_Lose(_isWin);
-        this.SetTextWinLose();
+        ChangeState(GameState.Win);
+        UiManager.Instance.Show_Win_Lose();
         //UiManager.Instance.ShowMenu();
     }
 
     public void OnLose()
     {
         Debug.Log("Lose");
-        _dragAndDrop.enabled = false;
-        UiManager.Instance.Show_Win_Lose(_isWin);
-        this.SetTextWinLose();
+        ResourceManager.Instance.SetHeart(-1);
         AudioManager.Instance.backgroundMusicSource.Pause();
         AudioManager.Instance.GameOver();
+        ChangeState(GameState.Lose);
+        UiManager.Instance.Show_Win_Lose();
         //UiManager.Instance.ShowMenu();
     }
 
@@ -320,11 +359,50 @@ public class GameManager : Singleton<GameManager>
             }
         }
     }
+    #endregion
+
+    #region Buy Pack
+    public void OnBuyPack(GameObject clickedButton)
+    {
+        string txtPrice = clickedButton.GetComponentInChildren<TextMeshProUGUI>().text;
+        int price = int.Parse(txtPrice);
+        if (ResourceManager.Instance.CanBuy(price))
+        {
+            Transform packTransform = clickedButton.transform.parent;
+            for (int i = 0; i < packTransform.childCount; i++)
+            {
+                Transform child = packTransform.GetChild(i);
+
+                if (child.name.Contains("_Booster"))
+                {
+                    TextMeshProUGUI txtAmount = child.GetComponentInChildren<TextMeshProUGUI>();
+                    int amount = ExtractNumber(txtAmount.text);
+
+                    ResourceManager.Instance.ChangeCountBooster(child.name, amount);
+                    ResourceManager.Instance.ChangeCoin(-price);
+                }
+            }
+        }
+    }
+
+    private int ExtractNumber(string input)
+    {
+        // Loại bỏ chữ 'X' hoặc 'x', sau đó ép kiểu sang int
+        string cleanString = input.Replace("X", "").Replace("x", "").Trim();
+
+        if (int.TryParse(cleanString, out int result))
+        {
+            return result;
+        }
+        return 0;
+    }
+    #endregion
 
     #region Booster
     public void OnMagnet()
     {
-        this.StartTimer();
+        if (!ResourceManager.Instance.CanUseBooster("Magnet_Booster"))
+            return;
         Dictionary<string, List<SpriteRenderer>> groups = new Dictionary<string, List<SpriteRenderer>>();
 
         foreach (var box in _listBox)
@@ -368,6 +446,7 @@ public class GameManager : Singleton<GameManager>
         {
             if (group.Value.Count >= 3)
             {
+                ResourceManager.Instance.ChangeCountBooster("Magnet_Booster", -1);
                 for (int i = 0; i < 3; i++)
                 {
 
@@ -407,7 +486,9 @@ public class GameManager : Singleton<GameManager>
 
     public void OnShuffle()
     {
-        this.StartTimer();
+        if (!ResourceManager.Instance.CanUseBooster("Shuffle_Booster"))
+            return;
+        ResourceManager.Instance.ChangeCountBooster("Shuffle_Booster", -1);
         List<SpriteRenderer> imageShoe = new List<SpriteRenderer>();
         foreach (var box in _listBox)
         {
@@ -438,22 +519,31 @@ public class GameManager : Singleton<GameManager>
 
         for (int i = 0; i < imageShoe.Count; i++)
         {
-            int rand = Random.Range(i, imageShoe.Count);
+            int rand = UnityEngine.Random.Range(i, imageShoe.Count);
             (imageShoe[i].sprite, imageShoe[rand].sprite) = (imageShoe[rand].sprite, imageShoe[i].sprite);
         }
     }
 
     public void OnMoreBox()
     {
-        this.StartTimer();
+        if (!ResourceManager.Instance.CanUseBooster("More_Box_Booster"))
+            return;
         _totalBox++;
         if (_totalBox > 9)
             return;
-
+        ResourceManager.Instance.ChangeCountBooster("More_Box_Booster", -1);
         GameObject obj = Instantiate(_prefabBox, _gridBox);
         ShoeBox box = obj.GetComponent<ShoeBox>();
         _listBox.Add(box);
         _gridBox.GetComponent<GridArranger>().OnTransformChildrenChanged();
     }
     #endregion
+}
+public enum GameState
+{
+    OnMenu,
+    OnGame,
+    Win,
+    Lose,
+    Pause
 }

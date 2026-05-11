@@ -653,8 +653,10 @@ MonoBehaviour:
   btnSoundOff: {fileID: 1863382031490674109}
   btnVibrationOn: {fileID: 4090958547963611743}
   btnVibrationOff: {fileID: 5418297531253701443}
-  btnPlay: {fileID: 4166915855945951669}
+  btnReplay: {fileID: 4166915855945951669}
   btnHome: {fileID: 1098358986422344170}
+  txtCoin: {fileID: 3117628718392535890}
+  txtHeart: {fileID: 8392550386125111840}
 --- !u!114 &4121898363009655721
 MonoBehaviour:
   m_ObjectHideFlags: 0

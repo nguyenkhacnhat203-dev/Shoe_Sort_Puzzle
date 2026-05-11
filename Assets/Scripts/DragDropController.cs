@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class DragDropController : MonoBehaviour
 {
+    #region Variables
     [SerializeField] private float _timeSuggest = 3f;
     [SerializeField] private SpriteRenderer _imageShoe, _lineShoe;
     private ShoeSlot _currentSlot, _cachedSlot;
@@ -11,18 +12,13 @@ public class DragDropController : MonoBehaviour
     private bool _isCompletingDrag = false, _isCompletingPress = false;
     private float _timeCount = 0, _startTimePress = 0;
     private Vector3 _startPosition;
+    #endregion
 
-    public void Reset()
-    {
-        _imageShoe.gameObject.SetActive(false);
-        _hasDrag = _hasPress = _isCompletingDrag = _isCompletingPress = false;
-        _currentSlot = _cachedSlot = null;
-        _timeCount = _startTimePress = 0;
-        _startPosition = Vector3.zero;
-    }
-
+    #region Unity Lifecycle
     void Update()
     {
+        if(GameManager.Instance.CurrentState != GameState.OnGame)
+            return;
         _timeCount += Time.deltaTime;
         if (_timeCount >= _timeSuggest)
         {
@@ -275,6 +271,26 @@ public class DragDropController : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        if (_imageShoe != null)
+            _imageShoe.transform.DOKill();
+        _isCompletingDrag = false;
+    }
+    #endregion
+
+    #region Public Methods
+    public void Reset()
+    {
+        _imageShoe.gameObject.SetActive(false);
+        _hasDrag = _hasPress = _isCompletingDrag = _isCompletingPress = false;
+        _currentSlot = _cachedSlot = null;
+        _timeCount = _startTimePress = 0;
+        _startPosition = Vector3.zero;
+    }
+    #endregion
+
+    #region Private Methods
     private void ClearCache()
     {
         if (_cachedSlot != null)
@@ -283,11 +299,5 @@ public class DragDropController : MonoBehaviour
             _cachedSlot = null;
         }
     }
-
-    void OnDestroy()
-    {
-        if (_imageShoe != null)
-            _imageShoe.transform.DOKill();
-        _isCompletingDrag = false;
-    }
+    #endregion
 }

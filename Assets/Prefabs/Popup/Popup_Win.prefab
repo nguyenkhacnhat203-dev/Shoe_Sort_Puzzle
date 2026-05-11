@@ -1299,6 +1299,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 629988cf3351eeb4f9b2d344b7cadb23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Main: {fileID: 2345497248992399964}
-  btnPlay: {fileID: 2473417207362632548}
+  Main: {fileID: 0}
+  btnContinue: {fileID: 2473417207362632548}
   btnHome: {fileID: 2683560189085715590}
+  txtCoin: {fileID: 2505281591822681371}
+  txtHeart: {fileID: 9196043628786679830}

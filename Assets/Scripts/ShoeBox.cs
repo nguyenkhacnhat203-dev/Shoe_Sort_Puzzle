@@ -5,17 +5,22 @@ using UnityEngine;
 
 public class ShoeBox : MonoBehaviour
 {
+    #region Variables
     [SerializeField] private Transform _slotContainer;
     [SerializeField] private Transform _ShoeBoxLid;
     [SerializeField] private BoxCollider2D _boxCollider;
 
     private List<ShoeSlot> _totalSlots;
     private ShoeShelf _shelf;
+    #endregion
 
+    #region Properties
     public List<ShoeSlot> TotalSlots => _totalSlots;
     public ShoeShelf Shelf => _shelf;
     public BoxCollider2D BoxCollider => _boxCollider;
+    #endregion
 
+    #region Unity Lifecycle
     private void Awake()
     {
         _totalSlots = Utils.GetComponentChildren<ShoeSlot>(_slotContainer);
@@ -29,7 +34,9 @@ public class ShoeBox : MonoBehaviour
         _ShoeBoxLid.transform.DOLocalMoveY(1f, 0.7f);
         _ShoeBoxLid.GetComponent<SpriteRenderer>().DOFade(0, 0.7f);
     }
+    #endregion
 
+    #region Initialization
     public void OnInitBox(int totalShelf, List<Sprite> listShoe, bool forceNotFull)
     {
         int shoeCount;
@@ -38,7 +45,21 @@ public class ShoeBox : MonoBehaviour
         else
             shoeCount = Random.Range(1, _totalSlots.Count + 1);
         List<Sprite> list = listShoe;
-        List<Sprite> listSlot = Utils.TakeAndRemoveRandom<Sprite>(list, shoeCount);
+        List<Sprite> listSlot = new List<Sprite>();
+        for (int i = 0; i < shoeCount; i++)
+        {
+            if (list.Count == 0) break;
+            int loopSlot = 0;
+        rerandSlot:
+            int n = Random.Range(0, list.Count);
+            if (listSlot.Count == 2 && listSlot[0].Equals(list[n]) && listSlot[1].Equals(list[n]))
+            {
+                loopSlot++;
+                if (loopSlot < 30) goto rerandSlot;
+            }
+            listSlot.Add(list[n]);
+            list.RemoveAt(n);
+        }
         for (int i = 0; i < listSlot.Count; i++)
         {
             ShoeSlot slot = this.RandomSlot();
@@ -52,10 +73,15 @@ public class ShoeBox : MonoBehaviour
             if (listShoe.Count == 0)
                 break;
             remainShoe.Add(new List<Sprite>());
-            int shoeIndex = remainShoe[i].Count-1;
-            rerand: int n = Random.Range(0, listShoe.Count);
-            if(shoeIndex>=0)
-                if(remainShoe[i][shoeIndex].Equals(listShoe[n])) goto rerand;
+            int shoeIndex = remainShoe[i].Count - 1;
+            int loopRemain = 0;
+        rerand:
+            int n = Random.Range(0, listShoe.Count);
+            if (shoeIndex >= 0 && remainShoe[i][shoeIndex].Equals(listShoe[n]))
+            {
+                loopRemain++;
+                if (loopRemain < 30) goto rerand;
+            }
             remainShoe[i].Add(listShoe[n]);
             listShoe.RemoveAt(n);
         }
@@ -97,19 +123,10 @@ public class ShoeBox : MonoBehaviour
         }
 
         _shelf.SetShoeList(remainShoe);
-
-        // for (int i = 0; i < _totalShelf.Count; i++)
-        // {
-        //     bool active = i < remainShoe.Count;
-        //     _totalShelf[i].gameObject.SetActive(active);
-
-        //     if (active)
-        //     {
-        //         _totalShelf[i].OnSetShoe(remainShoe[i]);
-        //         _stackShelf.Push(_totalShelf[i]);
-        //     }
-        // }
     }
+    #endregion
+
+    #region Logic & Mechanics
     public void CheckMerge()
     {
         if (this.GetSlotNull() == null)
@@ -144,6 +161,7 @@ public class ShoeBox : MonoBehaviour
         if (this.HasBoxEmpty())
             this.OnPrepareShelf();
     }
+    
     private void OnPrepareShelf()
     {
         Sequence mainSeq = DOTween.Sequence();
@@ -176,7 +194,9 @@ public class ShoeBox : MonoBehaviour
             _shelf.OnPrepareShelf();
         }
     }
+    #endregion
 
+    #region Helper Methods
     private bool CanMerge()
     {
         string name = _totalSlots[0].ShoeSprite.name;
@@ -214,4 +234,5 @@ public class ShoeBox : MonoBehaviour
         }
         return true;
     }
+    #endregion
 }
