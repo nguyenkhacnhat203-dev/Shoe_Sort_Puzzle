@@ -19,12 +19,26 @@ public class DragDropController : MonoBehaviour
     {
         if(GameManager.Instance.CurrentState != GameState.OnGame)
             return;
-        _timeCount += Time.deltaTime;
-        if (_timeCount >= _timeSuggest)
+        
+        // Tránh click xuyên qua các nút UI (như Settings, Pause...)
+        if (UnityEngine.EventSystems.EventSystem.current != null && 
+            UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            return;
+
+        if (_isCompletingPress || _isCompletingDrag || Input.GetMouseButton(0))
         {
             _timeCount = 0;
-            GameManager.Instance.OnCheckAndShake();
         }
+        else
+        {
+            _timeCount += Time.deltaTime;
+            if (_timeCount >= _timeSuggest)
+            {
+                _timeCount = 0;
+                GameManager.Instance.OnCheckAndShake();
+            }
+        }
+
         if (_isCompletingPress || _isCompletingDrag) return;
         if (_hasPress && Input.GetMouseButtonDown(0))
         {

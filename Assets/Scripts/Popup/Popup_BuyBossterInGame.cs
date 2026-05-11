@@ -36,11 +36,18 @@ public class Popup_BuyBossterInGame : PopupBase
         if (_price > coin)
         {
             DestroyPopup();
+            GameManager.Instance.ChangeState(GameState.OnGame);
             return;
         }
         ResourceManager.Instance.ChangeCountBooster(_boosterKey, 1);
         ResourceManager.Instance.ChangeCoin(-_price);
+        GameManager.Instance.ChangeState(GameState.OnGame);
         DestroyPopup();
+    }
+    public override void DestroyPopup()
+    {
+        base.DestroyPopup();
+        GameManager.Instance.ChangeState(GameState.OnGame);
     }
     public void SetupPopupBooster(Booster booster, string key)
     {

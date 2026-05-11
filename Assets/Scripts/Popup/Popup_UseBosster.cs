@@ -43,7 +43,14 @@ public class Popup_UseBosster : PopupBase
                 GameManager.Instance.OnMoreBox();
                 break;
         }
+        GameManager.Instance.ChangeState(GameState.OnGame);
+        DestroyPopup();
+    }
+
+    public override void DestroyPopup()
+    {
         base.DestroyPopup();
+        GameManager.Instance.ChangeState(GameState.OnGame);
     }
 
     public void SetupPopupBooster(Booster booster)

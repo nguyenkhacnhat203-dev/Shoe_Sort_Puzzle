@@ -180,13 +180,11 @@ public class UiManager : Singleton<UiManager>
         GameObject setting;
         if (GameManager.Instance.CurrentState == GameState.OnGame)
         {
-            setting = CreatePopup(PopupSettingInGame);
-            setting.SetActive(true);
+            CreatePopup(PopupSettingInGame);
         }
         else
         {
-            setting = CreatePopup(PopupSettingInMenu);
-            setting.SetActive(true);
+            CreatePopup(PopupSettingInMenu);
         }
     }
 
@@ -228,15 +226,15 @@ public class UiManager : Singleton<UiManager>
         {
             case 0:
                 booster = Booster.Magnet;
-                boosterKey = "MagnetBooster";
+                boosterKey = "Magnet_Booster";
                 break;
             case 1:
                 booster = Booster.Shuffle;
-                boosterKey = "ShuffleBooster";
+                boosterKey = "Shuffle_Booster";
                 break;
             case 2:
                 booster = Booster.MoreBox;
-                boosterKey = "MoreBoxBooster";
+                boosterKey = "More_Box_Booster";
                 break;
         }
         if (ResourceManager.Instance.GetCountBooster(boosterKey) == 0)

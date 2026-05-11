@@ -62,7 +62,6 @@ public abstract class PopupBase : MonoBehaviour
     public virtual void DestroyPopup()
     {
         AudioManager.Instance.BtnClick();
-        GameManager.Instance.ChangeState(GameState.OnMenu);
         if (Main == null)
         {
             Destroy(gameObject);
