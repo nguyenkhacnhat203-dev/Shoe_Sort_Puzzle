@@ -177,7 +177,6 @@ public class UiManager : Singleton<UiManager>
 
     public void Show_Setting()
     {
-        GameObject setting;
         if (GameManager.Instance.CurrentState == GameState.OnGame)
         {
             CreatePopup(PopupSettingInGame);
