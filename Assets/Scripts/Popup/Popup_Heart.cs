@@ -18,6 +18,11 @@ public class Popup_Heart : PopupBase
         onPurchase = action;
     }
 
+    void Start()
+    {
+        btnFullHeart.interactable = !ResourceManager.Instance.IsHeartFull();
+    }
+
     void Update()
     {
         UpdateTime();
@@ -50,11 +55,17 @@ public class Popup_Heart : PopupBase
     }
     public void AddFullHeart(Transform button)
     {
+        if (ResourceManager.Instance.IsHeartFull())
+        {
+            return;
+        }
         int price = int.Parse(button.GetComponentInChildren<TextMeshProUGUI>().text);
         if (price > ResourceManager.Instance.GetCoin())
             return;
         ResourceManager.Instance.ChangeCoin(-price);
-        ResourceManager.Instance.SetHeart(5);
+        int currentHeart = ResourceManager.Instance.GetHeart();
+        int amountHeart = ResourceManager.MAX_HEART - currentHeart;
+        ResourceManager.Instance.SetHeart(amountHeart);
         UiManager.Instance.UpdateStats();
         
         Action tempAction = onPurchase;

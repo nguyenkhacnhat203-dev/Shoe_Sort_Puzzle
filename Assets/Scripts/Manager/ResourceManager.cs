@@ -14,7 +14,7 @@ public class ResourceManager : Singleton<ResourceManager>
     private const string DATE_TIME = "Date_Time";
 
     private const int TIME_COUNT = 1800; //30p hồi 1 tim
-    private const int MAX_HEART = 5; //tối đa 5 tim
+    public const int MAX_HEART = 5; //tối đa 5 tim
     #endregion
 
     #region Variables
@@ -26,6 +26,7 @@ public class ResourceManager : Singleton<ResourceManager>
     void Start()
     {
         LoadHeartTimer();
+        UiManager.Instance.UpdateStats();
     }
     public void InitResource()
     {

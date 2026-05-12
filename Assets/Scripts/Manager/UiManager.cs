@@ -180,6 +180,7 @@ public class UiManager : Singleton<UiManager>
         if (GameManager.Instance.CurrentState == GameState.OnGame)
         {
             CreatePopup(PopupSettingInGame);
+            GameManager.Instance.ChangeState(GameState.Pause);
         }
         else
         {
@@ -193,11 +194,13 @@ public class UiManager : Singleton<UiManager>
         {
             GameObject popup = CreatePopup(PopupWin);
             popup.SetActive(true);
+            GameManager.Instance.ChangeState(GameState.Win);
         }
         if (GameManager.Instance.CurrentState == GameState.Lose)
         {
             GameObject popup = CreatePopup(PopupFail);
             popup.SetActive(true);
+            GameManager.Instance.ChangeState(GameState.Lose);
         }
     }
 
